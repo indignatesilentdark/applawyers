@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  --background: #07111f;
+  --background-elevated: #0b1626;
+  --card: #0f1b2d;
+  --card-muted: #13233a;
+  --border: #1d3557;
+  --accent: #18c487;
+  --accent-foreground: #04140f;
+  --foreground: #f6f8fb;
+  --muted-foreground: #9cafc7;
+  --danger: #ff6b6b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-background-elevated: var(--background-elevated);
+  --color-card: var(--card);
+  --color-card-muted: var(--card-muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-display), sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background:
+    radial-gradient(circle at top, rgba(24, 196, 135, 0.08), transparent 30%),
+    linear-gradient(180deg, #0b1626 0%, #07111f 45%, #050d18 100%);
+  color-scheme: dark;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+::selection {
+  background: rgba(24, 196, 135, 0.28);
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, rgba(15, 27, 45, 0.98), rgba(9, 18, 30, 0.96));
+  border: 1px solid rgba(29, 53, 87, 0.9);
+  box-shadow:
+    0 24px 60px rgba(2, 8, 16, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.field-base {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(29, 53, 87, 0.95);
+  background: rgba(11, 22, 38, 0.9);
+  color: var(--foreground);
+  padding: 0.95rem 1rem;
+  outline: none;
+}
+
+.field-base::placeholder {
+  color: rgba(156, 175, 199, 0.7);
+}
+
+.field-base:focus {
+  border-color: rgba(24, 196, 135, 0.9);
+  box-shadow: 0 0 0 3px rgba(24, 196, 135, 0.12);
+}
+
+.label-base {
+  margin-bottom: 0.45rem;
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+
+.page-shell {
+  margin: 0 auto;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 28rem;
+  padding: 1.25rem;
+}
+
+.section-title {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
