@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { COUNTRY_OPTIONS, findCountryOption } from "@/lib/countries";
 import type { LeadTransferPayload } from "@/lib/leads";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type RegisterFormProps = {
   lead: LeadTransferPayload;
@@ -93,17 +92,21 @@ export function RegisterForm({ lead }: RegisterFormProps) {
 
     try {
       setIsSendingOtp(true);
-      const supabase = createBrowserSupabaseClient();
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email: lead.email,
-        options: {
-          emailRedirectTo: undefined,
-          shouldCreateUser: true,
+      const response = await fetch("/api/auth/request-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ email: lead.email }),
       });
 
-      if (otpError) {
-        throw otpError;
+      const payload = (await response.json()) as {
+        error?: string;
+        message?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "No pudimos enviar el código seguro.");
       }
 
       setOtpSent(true);
@@ -131,15 +134,23 @@ export function RegisterForm({ lead }: RegisterFormProps) {
 
     try {
       setIsVerifyingOtp(true);
-      const supabase = createBrowserSupabaseClient();
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email: lead.email,
-        token: code.trim(),
-        type: "email",
+      const verifyResponse = await fetch("/api/auth/verify-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: code.trim(),
+          email: lead.email,
+        }),
       });
 
-      if (verifyError) {
-        throw verifyError;
+      const verifyPayload = (await verifyResponse.json()) as {
+        error?: string;
+      };
+
+      if (!verifyResponse.ok) {
+        throw new Error(verifyPayload.error ?? "No pudimos validar el código.");
       }
 
       const response = await fetch("/api/register/complete", {

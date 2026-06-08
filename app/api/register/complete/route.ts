@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getValidatedLeadTransfer } from "@/lib/leads";
+import { requirePortalUser } from "@/lib/portal-auth";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   try {
@@ -30,19 +30,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = await createServerSupabaseClient();
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user?.id || !user.email) {
-      return NextResponse.json(
-        { error: "No pudimos validar tu código de verificación." },
-        { status: 401 },
-      );
-    }
-
+    const { user } = await requirePortalUser();
     const admin = createAdminSupabaseClient();
     const lead = await getValidatedLeadTransfer(body.leadId, body.token, admin);
 
