@@ -6,6 +6,7 @@ import { useState } from "react";
 
 type OnboardingFormProps = {
   email: string;
+  initialCountry?: string;
 };
 
 const COUNTRY_OPTIONS = [
@@ -17,7 +18,9 @@ const COUNTRY_OPTIONS = [
   { name: "Costa Rica", dialCode: "+506" },
   { name: "Cuba", dialCode: "+53" },
   { name: "Ecuador", dialCode: "+593" },
+  { name: "Espana", dialCode: "+34" },
   { name: "El Salvador", dialCode: "+503" },
+  { name: "Estados Unidos", dialCode: "+1" },
   { name: "Guatemala", dialCode: "+502" },
   { name: "Haiti", dialCode: "+509" },
   { name: "Honduras", dialCode: "+504" },
@@ -30,39 +33,49 @@ const COUNTRY_OPTIONS = [
   { name: "Venezuela", dialCode: "+58" },
 ];
 
-export function OnboardingForm({ email }: OnboardingFormProps) {
+function findCountryOption(countryName?: string) {
+  if (!countryName) {
+    return null;
+  }
+
+  return COUNTRY_OPTIONS.find((option) => option.name === countryName) ?? null;
+}
+
+export function OnboardingForm({
+  email,
+  initialCountry,
+}: OnboardingFormProps) {
   const router = useRouter();
-  const defaultCountry =
-    COUNTRY_OPTIONS.find((option) => option.name === "Colombia") ??
-    COUNTRY_OPTIONS[0];
+  const initialCountryOption = findCountryOption(initialCountry);
   const [formState, setFormState] = useState({
-    country: defaultCountry.name,
+    country: initialCountryOption?.name ?? "",
     firstName: "",
     lastName: "",
-    phone: `${defaultCountry.dialCode} `,
+    phone: initialCountryOption ? `${initialCountryOption.dialCode} ` : "",
   });
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   function handleCountryChange(nextCountry: string) {
-    const selectedCountry =
-      COUNTRY_OPTIONS.find((option) => option.name === nextCountry) ??
-      defaultCountry;
-    const previousCountry =
-      COUNTRY_OPTIONS.find((option) => option.name === formState.country) ??
-      defaultCountry;
+    const selectedCountry = findCountryOption(nextCountry);
+    const previousCountry = findCountryOption(formState.country);
 
     setFormState((current) => {
       const trimmedPhone = current.phone.trim();
       const shouldReplaceDialCode =
-        !trimmedPhone || trimmedPhone === previousCountry.dialCode || trimmedPhone.startsWith(`${previousCountry.dialCode} `);
+        !trimmedPhone ||
+        (previousCountry
+          ? trimmedPhone === previousCountry.dialCode ||
+            trimmedPhone.startsWith(`${previousCountry.dialCode} `)
+          : true);
 
       return {
         ...current,
-        country: selectedCountry.name,
-        phone: shouldReplaceDialCode
-          ? `${selectedCountry.dialCode} `
-          : current.phone,
+        country: nextCountry,
+        phone:
+          shouldReplaceDialCode && selectedCountry
+            ? `${selectedCountry.dialCode} `
+            : current.phone,
       };
     });
   }
@@ -175,6 +188,7 @@ export function OnboardingForm({ email }: OnboardingFormProps) {
             value={formState.country}
             onChange={(event) => handleCountryChange(event.target.value)}
           >
+            <option value="">Selecciona tu pais</option>
             {COUNTRY_OPTIONS.map((country) => (
               <option key={country.name} value={country.name}>
                 {country.name}
@@ -190,7 +204,7 @@ export function OnboardingForm({ email }: OnboardingFormProps) {
           <input
             id="phone"
             className="field-base"
-            placeholder={`${(COUNTRY_OPTIONS.find((option) => option.name === formState.country) ?? defaultCountry).dialCode} 300 000 0000`}
+            placeholder={`${findCountryOption(formState.country)?.dialCode ?? "+00"} 300 000 0000`}
             value={formState.phone}
             onChange={(event) =>
               setFormState((current) => ({
