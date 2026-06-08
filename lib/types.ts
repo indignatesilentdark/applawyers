@@ -4,6 +4,12 @@ export type CaseStatus =
   | "Informe listo"
   | "Requiere información";
 
+export type PortalUserRow = {
+  created_at: string;
+  email: string;
+  id: string;
+};
+
 export type ProfileRow = {
   country: string | null;
   created_at: string;
@@ -46,6 +52,25 @@ export type CaseEvidenceRow = {
   file_size: number | null;
   file_type: string | null;
   id: string;
+  user_id: string;
+};
+
+export type AccessCodeRow = {
+  code_hash: string;
+  consumed_at: string | null;
+  created_at: string;
+  email: string;
+  expires_at: string;
+  id: string;
+  resend_email_id: string | null;
+};
+
+export type PrivateSessionRow = {
+  created_at: string;
+  expires_at: string;
+  id: string;
+  last_seen_at: string | null;
+  token_hash: string;
   user_id: string;
 };
 

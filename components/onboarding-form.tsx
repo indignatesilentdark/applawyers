@@ -3,14 +3,12 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type OnboardingFormProps = {
-  email: string | null;
-  userId: string;
+  email: string;
 };
 
-export function OnboardingForm({ email, userId }: OnboardingFormProps) {
+export function OnboardingForm({ email }: OnboardingFormProps) {
   const router = useRouter();
   const [formState, setFormState] = useState({
     country: "",
@@ -37,18 +35,17 @@ export function OnboardingForm({ email, userId }: OnboardingFormProps) {
 
     try {
       setIsSaving(true);
-      const supabase = createBrowserSupabaseClient();
-      const { error: upsertError } = await supabase.from("profiles").upsert({
-        country: formState.country,
-        email,
-        first_name: formState.firstName,
-        id: userId,
-        last_name: formState.lastName,
-        phone: formState.phone,
+      const response = await fetch("/api/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formState),
       });
 
-      if (upsertError) {
-        throw upsertError;
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error ?? "No pudimos guardar el perfil.");
       }
 
       router.push("/dashboard");
@@ -81,7 +78,7 @@ export function OnboardingForm({ email, userId }: OnboardingFormProps) {
         </h1>
         <p className="text-sm leading-6 text-muted-foreground">
           Necesitamos estos datos para asociar tu dossier privado al titular de
-          la cuenta.
+          la cuenta <span className="text-white">{email}</span>.
         </p>
       </div>
 

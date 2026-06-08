@@ -6,8 +6,6 @@ import { useEffect, useState } from "react";
 import { FileUploader } from "@/components/file-uploader";
 import { LoadingState } from "@/components/loading-state";
 import { StepButton } from "@/components/step-button";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
-import { slugifyFileName } from "@/lib/utils";
 
 const fraudOptions = [
   "Broker falso",
@@ -19,10 +17,6 @@ const fraudOptions = [
   "Recuperador falso",
   "Otro",
 ] as const;
-
-type CaseWizardProps = {
-  userId: string;
-};
 
 type DraftState = {
   companyEmails: string;
@@ -72,7 +66,7 @@ const steps = [
   "Confirmación",
 ];
 
-export function CaseWizard({ userId }: CaseWizardProps) {
+export function CaseWizard() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [files, setFiles] = useState<File[]>([]);
@@ -98,7 +92,10 @@ export function CaseWizard({ userId }: CaseWizardProps) {
   const [loadingLabel, setLoadingLabel] = useState("Preparando el caso...");
 
   useEffect(() => {
-    window.localStorage.setItem("approvedlawyer:case-draft", JSON.stringify(draft));
+    window.localStorage.setItem(
+      "approvedlawyer:case-draft",
+      JSON.stringify(draft),
+    );
   }, [draft]);
 
   function updateField<Key extends keyof DraftState>(key: Key, value: DraftState[Key]) {
@@ -126,100 +123,36 @@ export function CaseWizard({ userId }: CaseWizardProps) {
     return true;
   }
 
-  async function uploadEvidence(caseId: string) {
-    const supabase = createBrowserSupabaseClient();
-
-    for (const file of files) {
-      const sanitizedName = `${Date.now()}-${slugifyFileName(file.name)}`;
-      const filePath = `${userId}/${caseId}/${sanitizedName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("case-evidence")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { error: evidenceError } = await supabase.from("case_evidence").insert({
-        case_id: caseId,
-        file_name: file.name,
-        file_path: filePath,
-        file_size: file.size,
-        file_type: file.type,
-        user_id: userId,
-      });
-
-      if (evidenceError) {
-        throw evidenceError;
-      }
-    }
-  }
-
   async function handleSubmit() {
     setError(null);
 
     try {
       setIsSubmitting(true);
       setLoadingLabel("Guardando la información del caso...");
-      const supabase = createBrowserSupabaseClient();
 
-      const { data: createdCase, error: caseError } = await supabase
-        .from("cases")
-        .insert({
-          company_emails: draft.companyEmails,
-          company_name: draft.companyName,
-          contact_method: draft.contactMethod,
-          country: draft.country,
-          currency: draft.currency,
-          fraud_type: draft.fraudType,
-          full_description: draft.fullDescription,
-          lost_amount: Number(draft.lostAmount),
-          phones_or_users: draft.phonesOrUsers,
-          platform_links: draft.platformLinks,
-          promise: draft.promise,
-          relevant_urls: draft.relevantUrls,
-          start_date: draft.startDate,
-          status: "Pendiente",
-          steps_followed: draft.stepsFollowed,
-          suspicion_moment: draft.suspicionMoment,
-          transaction_hashes: draft.transactionHashes,
-          user_id: userId,
-          wallets: draft.wallets,
-        })
-        .select("id")
-        .single();
+      const formData = new FormData();
+      formData.append("payload", JSON.stringify(draft));
 
-      if (caseError || !createdCase) {
-        throw caseError ?? new Error("No pudimos crear el caso.");
-      }
-
-      if (files.length) {
-        setLoadingLabel("Subiendo evidencias...");
-        await uploadEvidence(createdCase.id);
-      }
-
-      setLoadingLabel("Generando informe preliminar con IA...");
-
-      const reportResponse = await fetch("/api/analyze-case", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          caseId: createdCase.id,
-        }),
+      files.forEach((file) => {
+        formData.append("files", file);
       });
 
-      if (!reportResponse.ok) {
-        throw new Error("No pudimos generar el informe preliminar.");
+      const response = await fetch("/api/cases", {
+        method: "POST",
+        body: formData,
+      });
+
+      const payload = (await response.json()) as {
+        caseId?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.caseId) {
+        throw new Error(payload.error ?? "No pudimos crear el caso.");
       }
 
       window.localStorage.removeItem("approvedlawyer:case-draft");
-      router.push(`/cases/${createdCase.id}/report`);
+      router.push(`/cases/${payload.caseId}/report`);
       router.refresh();
     } catch (submitError) {
       setError(

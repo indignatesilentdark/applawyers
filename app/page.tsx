@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { AuthForm } from "@/components/auth-form";
-import { hasPublicSupabaseEnv } from "@/lib/env";
+import { hasPortalAuthEnv } from "@/lib/env";
+import { getPortalSession } from "@/lib/portal-auth";
 
 type HomePageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -7,12 +9,17 @@ type HomePageProps = {
 
 export default async function Home({ searchParams }: HomePageProps) {
   const params = (await searchParams) ?? {};
-  const message =
-    typeof params.message === "string"
-      ? params.message
-      : typeof params.error === "string"
-        ? "No pudimos completar el acceso. Solicita un nuevo enlace e intenta de nuevo."
-        : undefined;
+  const session = hasPortalAuthEnv ? await getPortalSession() : null;
+  const message = typeof params.message === "string" ? params.message : undefined;
+  const error =
+    typeof params.error === "string"
+      ? message ??
+        "No pudimos completar el acceso. Solicita un nuevo código e intenta de nuevo."
+      : undefined;
+
+  if (session) {
+    redirect("/dashboard");
+  }
 
   return (
     <main className="page-shell flex items-center py-8">
@@ -32,22 +39,23 @@ export default async function Home({ searchParams }: HomePageProps) {
               Acceso privado a tu dossier
             </h1>
             <p className="max-w-md text-sm leading-7 text-muted-foreground">
-              Ingresa tu correo para recibir un enlace seguro de acceso. Desde
-              allí podrás crear tu perfil y continuar con la solicitud de
-              análisis preliminar.
+              Ingresa tu correo para recibir un código seguro. Desde allí
+              podrás validar tu acceso, crear tu perfil y continuar con la
+              solicitud de análisis preliminar.
             </p>
           </div>
 
           <AuthForm
-            initialMessage={message}
-            disabled={!hasPublicSupabaseEnv}
+            initialError={error}
+            initialMessage={error ? undefined : message}
+            disabled={!hasPortalAuthEnv}
           />
 
-          {!hasPublicSupabaseEnv ? (
+          {!hasPortalAuthEnv ? (
             <div className="rounded-2xl border border-border/80 bg-background-elevated/70 p-4 text-sm leading-6 text-muted-foreground">
-              Configura `NEXT_PUBLIC_SUPABASE_URL` y
-              `NEXT_PUBLIC_SUPABASE_ANON_KEY` para habilitar el envío real del
-              Magic Link.
+              Configura `NEXT_PUBLIC_SUPABASE_URL`,
+              `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY` y
+              `AUTH_OTP_SECRET` para habilitar el envío real de códigos.
             </div>
           ) : null}
         </div>

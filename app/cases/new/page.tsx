@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import { CaseWizard } from "@/components/case-wizard";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { requireAuthenticatedUser } from "@/lib/auth";
+import { requirePortalUser } from "@/lib/auth";
 
 export default async function NewCasePage() {
-  const { supabase, user } = await requireAuthenticatedUser();
+  const { admin, user } = await requirePortalUser();
 
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from("profiles")
     .select("email, first_name, last_name")
     .eq("id", user.id)
@@ -22,7 +22,7 @@ export default async function NewCasePage() {
       eyebrow="Solicitud privada"
       profile={profile}
     >
-      <CaseWizard userId={user.id} />
+      <CaseWizard />
     </DashboardShell>
   );
 }

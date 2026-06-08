@@ -2,20 +2,21 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CaseCard } from "@/components/case-card";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { requireAuthenticatedUser } from "@/lib/auth";
+import { requirePortalUser } from "@/lib/auth";
 
 export default async function DashboardPage() {
-  const { supabase, user } = await requireAuthenticatedUser();
+  const { admin, user } = await requirePortalUser();
 
   const [{ data: profile }, { data: cases }] = await Promise.all([
-    supabase
+    admin
       .from("profiles")
       .select("email, first_name, last_name")
       .eq("id", user.id)
       .maybeSingle(),
-    supabase
+    admin
       .from("cases")
       .select("id, company_name, created_at, currency, fraud_type, lost_amount, status")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
   ]);
 
@@ -25,7 +26,7 @@ export default async function DashboardPage() {
 
   const caseIds = cases?.map((item) => item.id) ?? [];
   const { data: reports } = caseIds.length
-    ? await supabase.from("case_reports").select("case_id").in("case_id", caseIds)
+    ? await admin.from("case_reports").select("case_id").in("case_id", caseIds)
     : { data: [] as Array<{ case_id: string }> };
 
   const reportCaseIds = new Set((reports ?? []).map((item) => item.case_id));

@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { ReportSection } from "@/components/report-section";
 import { StatusBadge } from "@/components/status-badge";
-import { requireAuthenticatedUser } from "@/lib/auth";
+import { requirePortalUser } from "@/lib/auth";
 import type { StructuredReport } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -12,21 +12,22 @@ type ReportPageProps = {
 
 export default async function ReportPage({ params }: ReportPageProps) {
   const { id } = await params;
-  const { supabase, user } = await requireAuthenticatedUser();
+  const { admin, user } = await requirePortalUser();
 
   const [{ data: profile }, { data: caseRow }, { data: reportRow }, { data: evidenceRows }] =
     await Promise.all([
-      supabase
+      admin
         .from("profiles")
         .select("email, first_name, last_name")
         .eq("id", user.id)
         .maybeSingle(),
-      supabase.from("cases").select("*").eq("id", id).single(),
-      supabase.from("case_reports").select("*").eq("case_id", id).maybeSingle(),
-      supabase
+      admin.from("cases").select("*").eq("id", id).eq("user_id", user.id).maybeSingle(),
+      admin.from("case_reports").select("*").eq("case_id", id).eq("user_id", user.id).maybeSingle(),
+      admin
         .from("case_evidence")
         .select("id, file_name, file_path, file_type, file_size, created_at, case_id, user_id")
         .eq("case_id", id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: true }),
     ]);
 

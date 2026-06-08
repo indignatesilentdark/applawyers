@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { OnboardingForm } from "@/components/onboarding-form";
-import { requireAuthenticatedUser } from "@/lib/auth";
+import { requirePortalUser } from "@/lib/auth";
 
 export default async function OnboardingPage() {
-  const { supabase, user } = await requireAuthenticatedUser();
+  const { admin, user } = await requirePortalUser();
 
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from("profiles")
     .select("id")
     .eq("id", user.id)
@@ -17,7 +17,7 @@ export default async function OnboardingPage() {
 
   return (
     <main className="page-shell flex items-center py-8">
-      <OnboardingForm email={user.email ?? null} userId={user.id} />
+      <OnboardingForm email={user.email} />
     </main>
   );
 }
