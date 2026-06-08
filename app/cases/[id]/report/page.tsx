@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { DashboardShell } from "@/components/dashboard-shell";
+import { DossierPrivateHeader } from "@/components/dossier-private-header";
 import { ReportView } from "@/components/report-view";
 import { isAdminEmail } from "@/lib/admin";
 import { requirePortalUser } from "@/lib/auth";
@@ -40,19 +40,22 @@ export default async function ReportPage({ params }: ReportPageProps) {
     notFound();
   }
 
+  const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
+
   return (
-    <DashboardShell
-      title="Dossier privado"
-      eyebrow="Informe preliminar"
-      isAdmin={isAdminEmail(user.email)}
-      profile={profile}
-    >
+    <main className="page-shell space-y-6 py-5 lg:space-y-7 lg:py-8">
+      <DossierPrivateHeader
+        isAdmin={isAdminEmail(user.email)}
+        userEmail={profile.email}
+        userName={fullName}
+      />
+
       <ReportView
         caseRow={caseRow}
         evidenceRows={evidenceRows ?? []}
         profile={profile}
         report={reportRow?.report_json as StructuredReport | undefined}
       />
-    </DashboardShell>
+    </main>
   );
 }
