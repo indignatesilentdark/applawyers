@@ -4,6 +4,23 @@ import { env, hasPortalAuthEnv } from "@/lib/env";
 import { buildOtpEmailHtml, createResendClient } from "@/lib/resend";
 import { generateOtpCode, hashOtpCode, maskEmail, normalizeEmail } from "@/lib/security";
 
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+
+  return "No pudimos enviar el codigo seguro.";
+}
+
 export async function POST(request: Request) {
   try {
     if (!hasPortalAuthEnv) {
@@ -27,7 +44,10 @@ export async function POST(request: Request) {
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
 
-    const [{ data: recentCode }, { count: recentCount }] = await Promise.all([
+    const [
+      { data: recentCode, error: recentCodeError },
+      { count: recentCount, error: recentCountError },
+    ] = await Promise.all([
       admin
         .from("access_codes")
         .select("id, created_at")
@@ -42,6 +62,14 @@ export async function POST(request: Request) {
         .eq("email", normalizedEmail)
         .gte("created_at", tenMinutesAgo),
     ]);
+
+    if (recentCodeError) {
+      throw recentCodeError;
+    }
+
+    if (recentCountError) {
+      throw recentCountError;
+    }
 
     if (recentCode) {
       return NextResponse.json(
@@ -67,11 +95,15 @@ export async function POST(request: Request) {
     const codeHash = hashOtpCode(normalizedEmail, code);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-    await admin
+    const { error: consumeExistingCodesError } = await admin
       .from("access_codes")
       .update({ consumed_at: new Date().toISOString() })
       .eq("email", normalizedEmail)
       .is("consumed_at", null);
+
+    if (consumeExistingCodesError) {
+      throw consumeExistingCodesError;
+    }
 
     const resend = createResendClient();
     const sendResult = env.resendTemplateId
@@ -115,7 +147,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "No pudimos enviar el código seguro." },
+      { error: getErrorMessage(error) },
       { status: 500 },
     );
   }
