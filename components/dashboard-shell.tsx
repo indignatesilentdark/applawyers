@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { ProfileRow } from "@/lib/types";
@@ -25,7 +26,28 @@ export function DashboardShell({
       <div className="space-y-5">
         <header className="glass-panel rounded-[1.75rem] p-5">
           <div className="mb-5 flex items-start justify-between gap-4">
-            <div>
+            <div className="min-w-0">
+              <div className="mb-4 overflow-hidden rounded-[1.35rem] border border-border/70 bg-background-elevated/70 px-3 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-accent/10">
+                    <Image
+                      alt="Approve Lawyers"
+                      className="object-contain"
+                      fill
+                      sizes="56px"
+                      src="/logo-applawyers-original.png"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground">
+                      Plataforma privada
+                    </p>
+                    <p className="truncate text-base font-semibold tracking-[-0.03em] text-white">
+                      Approve Lawyers
+                    </p>
+                  </div>
+                </div>
+              </div>
               {eyebrow ? (
                 <p className="mb-2 text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
                   {eyebrow}
@@ -52,7 +74,7 @@ export function DashboardShell({
             </div>
           </div>
 
-          <nav className="mt-5 flex gap-2">
+          <nav className="mt-5 flex flex-wrap gap-2">
             <Link
               href="/dashboard"
               className="rounded-full border border-border/70 px-4 py-2 text-xs font-medium text-white"
@@ -64,6 +86,18 @@ export function DashboardShell({
               className="rounded-full border border-border/70 px-4 py-2 text-xs font-medium text-white"
             >
               Nuevo caso
+            </Link>
+            <Link
+              href="/profile"
+              className="rounded-full border border-border/70 px-4 py-2 text-xs font-medium text-white"
+            >
+              Perfil
+            </Link>
+            <Link
+              href="/security"
+              className="rounded-full border border-border/70 px-4 py-2 text-xs font-medium text-white"
+            >
+              Seguridad
             </Link>
           </nav>
         </header>
