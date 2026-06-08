@@ -193,7 +193,7 @@ export function RegisterForm({ lead }: RegisterFormProps) {
         </p>
         <div className="rounded-[1.35rem] border border-border/80 bg-background-elevated/55 p-4 text-sm leading-6 text-muted-foreground">
           <p className="font-medium text-white">
-            Lead identificado para {lead.fullName || lead.email}
+            Analisis identificado para {lead.fullName || lead.email}
           </p>
           <p className="mt-1">
             Email vinculado: <span className="text-white">{lead.email}</span>
