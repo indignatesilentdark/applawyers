@@ -23,8 +23,10 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <main className="page-shell flex items-center py-8">
-      <OnboardingForm email={user.email} initialCountry={initialCountry} />
+    <main className="page-shell page-shell-centered flex items-center py-8 lg:py-12">
+      <div className="mx-auto w-full max-w-3xl">
+        <OnboardingForm email={user.email} initialCountry={initialCountry} />
+      </div>
     </main>
   );
 }

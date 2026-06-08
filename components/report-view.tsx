@@ -245,7 +245,8 @@ export function ReportView({
       </motion.section>
 
       {report ? (
-        <>
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)]">
+          <div className="space-y-5">
           <SectionCard icon={<IconSpark />} title="Resumen ejecutivo">
             <p className="text-[0.98rem] leading-8 text-white/95">
               {report.executiveSummary}
@@ -317,7 +318,9 @@ export function ReportView({
               )}
             </div>
           </SectionCard>
+          </div>
 
+          <div className="space-y-5">
           <SectionCard
             icon={<IconSpark />}
             title="Análisis de evidencia aportada"
@@ -392,7 +395,8 @@ export function ReportView({
               {report.disclaimer}
             </p>
           </SectionCard>
-        </>
+          </div>
+        </div>
       ) : (
         <SectionCard icon={<IconSpark />} title="Informe en preparación">
           <p className="text-white">

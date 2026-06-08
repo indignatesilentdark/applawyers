@@ -24,8 +24,8 @@ export default async function RegisterPage({
 
   if (!leadId || !token) {
     return (
-      <main className="page-shell flex items-center py-8">
-        <section className="glass-panel w-full rounded-[2rem] p-6 sm:p-8">
+      <main className="page-shell page-shell-centered flex items-center py-8 lg:py-12">
+        <section className="glass-panel mx-auto w-full max-w-3xl rounded-[2rem] p-6 sm:p-8">
           <p className="text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
             Registro seguro
           </p>
@@ -54,11 +54,13 @@ export default async function RegisterPage({
   }
 
   return (
-    <main className="page-shell flex items-center py-8">
+    <main className="page-shell page-shell-centered flex items-center py-8 lg:py-12">
       {lead ? (
-        <RegisterForm lead={lead} />
+        <div className="mx-auto w-full max-w-3xl">
+          <RegisterForm lead={lead} />
+        </div>
       ) : (
-        <section className="glass-panel w-full rounded-[2rem] p-6 sm:p-8">
+        <section className="glass-panel mx-auto w-full max-w-3xl rounded-[2rem] p-6 sm:p-8">
           <p className="text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
             Registro seguro
           </p>
