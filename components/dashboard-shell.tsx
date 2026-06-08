@@ -24,12 +24,15 @@ export function DashboardShell({
     .join(" ");
 
   return (
-    <main className="page-shell py-5 lg:py-8">
+    <main className="page-shell overflow-x-clip py-5 lg:py-8">
       <div className="space-y-5">
-        <header className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
+        <header className="glass-panel relative overflow-hidden rounded-[1.75rem] p-5 lg:p-6">
+          <div className="absolute right-5 top-5 z-10 xl:hidden">
+            <SignOutButton />
+          </div>
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(19rem,0.8fr)] xl:items-start">
             <div className="min-w-0">
-              <div className="surface-contrast mb-4 overflow-hidden rounded-[1.35rem] px-3 py-3 lg:px-4 lg:py-4">
+              <div className="surface-contrast mb-4 min-w-0 overflow-hidden rounded-[1.35rem] pr-16 pl-3 py-3 lg:px-4 lg:py-4 xl:pr-4">
                 <div className="flex items-center gap-3 lg:gap-4">
                   <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-accent/10 lg:size-16">
                     <Image
@@ -94,14 +97,14 @@ export function DashboardShell({
                 ) : null}
               </nav>
             </div>
-            <div className="space-y-4 xl:pl-3">
-              <div className="flex justify-start xl:justify-end">
+            <div className="min-w-0 space-y-4 xl:pl-3">
+              <div className="hidden justify-start xl:flex xl:justify-end">
                 <SignOutButton />
               </div>
-              <div className="surface-muted rounded-[1.5rem] p-4">
-                <div className="flex items-center gap-4">
+              <div className="surface-muted min-w-0 rounded-[1.5rem] p-4">
+                <div className="flex min-w-0 items-center gap-4">
                   <div className="flex size-12 items-center justify-center rounded-2xl bg-accent/15 text-sm font-semibold text-accent">
-                  {fullName ? fullName.slice(0, 1).toUpperCase() : "A"}
+                    {fullName ? fullName.slice(0, 1).toUpperCase() : "A"}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -112,7 +115,7 @@ export function DashboardShell({
                         Cuenta activa
                       </span>
                     </div>
-                    <p className="mt-1 truncate text-sm text-sky-100/80">
+                    <p className="mt-1 break-words text-sm leading-6 text-sky-100/80">
                       {profile?.email ?? "Sesión protegida"}
                     </p>
                   </div>
