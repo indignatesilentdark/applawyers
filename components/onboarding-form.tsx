@@ -9,18 +9,32 @@ type OnboardingFormProps = {
 };
 
 const COUNTRY_OPTIONS = [
-  { name: "Colombia", dialCode: "+57" },
-  { name: "Mexico", dialCode: "+52" },
-  { name: "Peru", dialCode: "+51" },
-  { name: "Chile", dialCode: "+56" },
   { name: "Argentina", dialCode: "+54" },
-  { name: "Estados Unidos", dialCode: "+1" },
-  { name: "Espana", dialCode: "+34" },
+  { name: "Bolivia", dialCode: "+591" },
+  { name: "Brasil", dialCode: "+55" },
+  { name: "Chile", dialCode: "+56" },
+  { name: "Colombia", dialCode: "+57" },
+  { name: "Costa Rica", dialCode: "+506" },
+  { name: "Cuba", dialCode: "+53" },
+  { name: "Ecuador", dialCode: "+593" },
+  { name: "El Salvador", dialCode: "+503" },
+  { name: "Guatemala", dialCode: "+502" },
+  { name: "Haiti", dialCode: "+509" },
+  { name: "Honduras", dialCode: "+504" },
+  { name: "Mexico", dialCode: "+52" },
+  { name: "Nicaragua", dialCode: "+505" },
+  { name: "Panama", dialCode: "+507" },
+  { name: "Paraguay", dialCode: "+595" },
+  { name: "Peru", dialCode: "+51" },
+  { name: "Uruguay", dialCode: "+598" },
+  { name: "Venezuela", dialCode: "+58" },
 ];
 
 export function OnboardingForm({ email }: OnboardingFormProps) {
   const router = useRouter();
-  const defaultCountry = COUNTRY_OPTIONS[0];
+  const defaultCountry =
+    COUNTRY_OPTIONS.find((option) => option.name === "Colombia") ??
+    COUNTRY_OPTIONS[0];
   const [formState, setFormState] = useState({
     country: defaultCountry.name,
     firstName: "",
