@@ -44,6 +44,7 @@ export default async function AdminPage() {
       eyebrow="Panel interno"
       isAdmin
       profile={adminProfile}
+      summaryText="Supervisa usuarios, casos e informes listos desde el panel interno con una lectura rápida de la operación."
     >
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="surface-contrast rounded-[1.5rem] p-5">

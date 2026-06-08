@@ -9,6 +9,7 @@ type DashboardShellProps = {
   children: ReactNode;
   eyebrow?: string;
   isAdmin?: boolean;
+  summaryText?: string;
   profile?: Pick<ProfileRow, "email" | "first_name" | "last_name"> | null;
   title: string;
 };
@@ -18,6 +19,7 @@ export function DashboardShell({
   eyebrow,
   isAdmin,
   profile,
+  summaryText,
   title,
 }: DashboardShellProps) {
   const fullName = [profile?.first_name, profile?.last_name]
@@ -37,25 +39,40 @@ export function DashboardShell({
           />
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(19rem,0.8fr)] xl:items-start">
             <div className="min-w-0">
-              <div className="surface-contrast mb-4 min-w-0 overflow-hidden rounded-[1.35rem] pr-16 pl-3 py-3 lg:px-4 lg:py-4 xl:pr-4">
-                <div className="flex items-center gap-3 lg:gap-4">
-                  <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-accent/10 lg:size-16">
-                    <Image
-                      alt="Approve Lawyers"
-                      className="object-contain"
-                      fill
-                      sizes="56px"
-                      src="/logo-applawyers-original.png"
-                    />
+              <div className="mb-4 grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.7fr)]">
+                <div className="surface-contrast min-w-0 overflow-hidden rounded-[1.35rem] pr-16 pl-3 py-3 lg:px-4 lg:py-4 xl:pr-4">
+                  <div className="flex items-center gap-3 lg:gap-4">
+                    <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-accent/10 lg:size-16">
+                      <Image
+                        alt="Approve Lawyers"
+                        className="object-contain"
+                        fill
+                        sizes="56px"
+                        src="/logo-applawyers-original.png"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground">
+                        Plataforma privada
+                      </p>
+                      <p className="truncate text-base font-semibold tracking-[-0.03em] text-white">
+                        Approve Lawyers
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground">
-                      Plataforma privada
-                    </p>
-                    <p className="truncate text-base font-semibold tracking-[-0.03em] text-white">
-                      Approve Lawyers
-                    </p>
-                  </div>
+                </div>
+
+                <div className="surface-muted hidden rounded-[1.35rem] p-4 xl:flex xl:flex-col xl:justify-center">
+                  <p className="text-[0.68rem] uppercase tracking-[0.24em] text-muted-foreground">
+                    Vista actual
+                  </p>
+                  <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
+                    {title}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-sky-100/72">
+                    {summaryText ??
+                      "Espacio privado para revisar actividad, acceder a tus herramientas y continuar el flujo del caso."}
+                  </p>
                 </div>
               </div>
               {eyebrow ? (

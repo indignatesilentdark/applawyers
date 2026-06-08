@@ -40,6 +40,7 @@ export default async function DashboardPage() {
       eyebrow="Panel seguro"
       isAdmin={isAdminEmail(user.email)}
       profile={profile}
+      summaryText="Centraliza tu dossier, los casos abiertos y el acceso directo al análisis profundo desde una sola vista."
     >
       <div className="dashboard-grid">
         <div className="space-y-5">
