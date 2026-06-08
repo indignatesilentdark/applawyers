@@ -39,6 +39,8 @@ SUPABASE_SERVICE_ROLE_KEY=
 RESEND_API_KEY=
 RESEND_TEMPLATE_ID=
 EMAIL_FROM="ApproveLawyers <no-reply@approvelawyers.com>"
+APP_BASE_URL=
+HUMAN_REVIEW_EMAIL=
 AUTH_OTP_SECRET=
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4.1-mini
@@ -51,6 +53,8 @@ OPENAI_MODEL=gpt-4.1-mini
 - `/dashboard` resumen privado y listado de casos
 - `/cases/new` wizard multistep para crear casos y subir evidencia
 - `/cases/[id]/report` dossier privado con informe preliminar
+- `/api/cases/[id]/pdf` descarga del dossier en PDF
+- `/api/cases/[id]/review` solicitud de revisión humana
 - `/api/auth/request-code` envío del código
 - `/api/auth/verify-code` validación y creación de sesión
 
@@ -58,4 +62,6 @@ OPENAI_MODEL=gpt-4.1-mini
 
 - Si `RESEND_TEMPLATE_ID` no está configurado, la app usa un HTML interno como respaldo para el correo OTP.
 - Si `OPENAI_API_KEY` no está configurada, la API devuelve un informe preliminar de respaldo para facilitar pruebas.
+- Si `APP_BASE_URL` está configurada, los correos de dossier incluyen enlace directo al caso.
+- Si `HUMAN_REVIEW_EMAIL` está configurada, la solicitud de revisión humana notifica al equipo por correo y adjunta el PDF del dossier.
 - El proyecto evita cualquier promesa de recuperación y mantiene lenguaje prudente e investigativo.

@@ -6,6 +6,8 @@ const statusStyles: Record<CaseStatus, string> = {
   "Informe listo": "border-accent/40 bg-accent/10 text-white",
   Pendiente: "border-sky-400/30 bg-sky-400/10 text-sky-100",
   "Requiere información": "border-rose-400/30 bg-rose-400/10 text-rose-100",
+  "Revisión humana solicitada":
+    "border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-100",
 };
 
 export function StatusBadge({ status }: { status: CaseStatus }) {

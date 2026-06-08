@@ -1,4 +1,5 @@
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { sendCaseReportEmail } from "@/lib/report-delivery";
 import {
   generateStructuredReport,
   renderReportAsText,
@@ -53,6 +54,24 @@ export async function analyzeAndPersistCase(
     .update({ status: "Informe listo" })
     .eq("id", caseId)
     .eq("user_id", userId);
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("email, first_name, last_name, phone")
+    .eq("id", userId)
+    .maybeSingle();
+
+  try {
+    await sendCaseReportEmail({
+      caseId,
+      caseRow,
+      evidence: evidenceRows ?? [],
+      profile,
+      report,
+    });
+  } catch (error) {
+    console.error("Failed to send case report email", error);
+  }
 
   return report;
 }

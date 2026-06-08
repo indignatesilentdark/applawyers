@@ -1,8 +1,14 @@
 export const env = {
+  appBaseUrl:
+    process.env.APP_BASE_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+    process.env.VERCEL_URL,
   authOtpSecret: process.env.AUTH_OTP_SECRET,
   emailFrom:
     process.env.EMAIL_FROM ??
     "ApproveLawyers <no-reply@approvelawyers.com>",
+  humanReviewEmail: process.env.HUMAN_REVIEW_EMAIL,
   openAIKey: process.env.OPENAI_API_KEY,
   openAIModel: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
   resendApiKey: process.env.RESEND_API_KEY,

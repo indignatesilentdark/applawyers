@@ -2,7 +2,8 @@ export type CaseStatus =
   | "Pendiente"
   | "Analizando"
   | "Informe listo"
-  | "Requiere información";
+  | "Requiere información"
+  | "Revisión humana solicitada";
 
 export type PortalUserRow = {
   created_at: string;
