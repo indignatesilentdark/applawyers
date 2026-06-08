@@ -184,20 +184,6 @@ export async function generateReportPdfBuffer({
   };
 
   const logoScale = logoImage.scale(0.12);
-  context.page.drawImage(logoImage, {
-    height: logoScale.height,
-    width: logoScale.width,
-    x: PAGE_MARGIN,
-    y: context.y - logoScale.height + 10,
-  });
-
-  context.page.drawRectangle({
-    color: rgb(0.08, 0.18, 0.22),
-    height: logoScale.height + 16,
-    width: logoScale.width + 16,
-    x: PAGE_MARGIN - 8,
-    y: context.y - logoScale.height + 2,
-  });
 
   context.page.drawImage(logoImage, {
     height: logoScale.height,
