@@ -442,7 +442,7 @@ export function CaseWizard() {
           </StepButton>
         ) : (
           <StepButton type="button" onClick={handleSubmit}>
-            Generar informe preliminar con IA
+            Analizar mi caso profundamente
           </StepButton>
         )}
       </div>
