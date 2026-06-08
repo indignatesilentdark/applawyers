@@ -58,6 +58,24 @@ select {
     transform 150ms ease;
 }
 
+a,
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+select,
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
 ::selection {
   background: rgba(24, 196, 135, 0.28);
 }
