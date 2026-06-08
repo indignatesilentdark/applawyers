@@ -1,10 +1,5 @@
 import { redirect } from "next/navigation";
-import {
-  FileClock,
-  FolderSearch,
-  LockKeyhole,
-  ScanSearch,
-} from "lucide-react";
+import { FolderSearch, LockKeyhole } from "lucide-react";
 import { CaseBenefitsGrid } from "@/components/case-benefits-grid";
 import { CaseCard } from "@/components/case-card";
 import { CaseStatusCard } from "@/components/case-status-card";
@@ -75,21 +70,21 @@ export default async function DashboardPage() {
             <div className="mt-5 space-y-3">
               <CaseStatusCard
                 description="El caso todavía no ha iniciado el flujo profundo."
-                icon={FileClock}
+                icon="file"
                 label="Expediente"
                 tone="amber"
                 value={hasCases ? "En curso" : "No iniciado"}
               />
               <CaseStatusCard
                 description="La IA está lista para revisar tus evidencias y contexto."
-                icon={ScanSearch}
+                icon="analysis"
                 label="Análisis"
                 tone="emerald"
                 value="Pendiente"
               />
               <CaseStatusCard
                 description="El informe aparecerá aquí cuando completes el análisis."
-                icon={FolderSearch}
+                icon="report"
                 label="Informe"
                 tone="slate"
                 value={reportCaseIds.size ? "Disponible" : "No disponible"}

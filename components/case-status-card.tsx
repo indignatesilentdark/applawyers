@@ -1,12 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
+import { FileClock, FolderSearch, ScanSearch } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const iconMap = {
+  analysis: ScanSearch,
+  file: FileClock,
+  report: FolderSearch,
+} as const;
 
 type CaseStatusCardProps = {
   description?: string;
-  icon: LucideIcon;
+  icon: keyof typeof iconMap;
   label: string;
   tone?: "amber" | "emerald" | "slate";
   value: string;
@@ -29,11 +35,12 @@ const toneMap = {
 
 export function CaseStatusCard({
   description,
-  icon: Icon,
+  icon,
   label,
   tone = "slate",
   value,
 }: CaseStatusCardProps) {
+  const Icon = iconMap[icon];
   const styles = toneMap[tone];
 
   return (
