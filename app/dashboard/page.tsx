@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CaseCard } from "@/components/case-card";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { isAdminEmail } from "@/lib/admin";
 import { requirePortalUser } from "@/lib/auth";
 
 export default async function DashboardPage() {
@@ -35,6 +36,7 @@ export default async function DashboardPage() {
     <DashboardShell
       title="Dossier privado"
       eyebrow="Panel seguro"
+      isAdmin={isAdminEmail(user.email)}
       profile={profile}
     >
       <section className="glass-panel rounded-[1.75rem] p-5">

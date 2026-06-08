@@ -7,6 +7,7 @@ import { SignOutButton } from "@/components/sign-out-button";
 type DashboardShellProps = {
   children: ReactNode;
   eyebrow?: string;
+  isAdmin?: boolean;
   profile?: Pick<ProfileRow, "email" | "first_name" | "last_name"> | null;
   title: string;
 };
@@ -14,6 +15,7 @@ type DashboardShellProps = {
 export function DashboardShell({
   children,
   eyebrow,
+  isAdmin,
   profile,
   title,
 }: DashboardShellProps) {
@@ -99,6 +101,14 @@ export function DashboardShell({
             >
               Seguridad
             </Link>
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                className="rounded-full border border-accent/35 bg-accent/10 px-4 py-2 text-xs font-medium text-white"
+              >
+                Admin
+              </Link>
+            ) : null}
           </nav>
         </header>
 

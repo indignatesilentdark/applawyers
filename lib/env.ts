@@ -1,4 +1,5 @@
 export const env = {
+  adminEmails: process.env.ADMIN_EMAILS,
   appBaseUrl:
     process.env.APP_BASE_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??

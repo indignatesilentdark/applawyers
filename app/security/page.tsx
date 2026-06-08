@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { isAdminEmail } from "@/lib/admin";
 import { requirePortalUser } from "@/lib/auth";
 
 export default async function SecurityPage() {
@@ -19,6 +20,7 @@ export default async function SecurityPage() {
     <DashboardShell
       title="Seguridad"
       eyebrow="Acceso protegido"
+      isAdmin={isAdminEmail(user.email)}
       profile={profile}
     >
       <section className="glass-panel rounded-[1.75rem] p-5">

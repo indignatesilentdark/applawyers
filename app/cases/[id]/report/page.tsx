@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { ReportView } from "@/components/report-view";
+import { isAdminEmail } from "@/lib/admin";
 import { requirePortalUser } from "@/lib/auth";
 import type { StructuredReport } from "@/lib/types";
 
@@ -41,6 +42,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
     <DashboardShell
       title="Dossier privado"
       eyebrow="Informe preliminar"
+      isAdmin={isAdminEmail(user.email)}
       profile={profile}
     >
       <ReportView
