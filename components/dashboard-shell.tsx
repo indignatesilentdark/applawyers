@@ -29,7 +29,7 @@ export function DashboardShell({
         <header className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(19rem,0.8fr)] xl:items-start">
             <div className="min-w-0">
-              <div className="mb-4 overflow-hidden rounded-[1.35rem] border border-border/70 bg-background-elevated/70 px-3 py-3 lg:px-4 lg:py-4">
+              <div className="surface-contrast mb-4 overflow-hidden rounded-[1.35rem] px-3 py-3 lg:px-4 lg:py-4">
                 <div className="flex items-center gap-3 lg:gap-4">
                   <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-accent/10 lg:size-16">
                     <Image
@@ -62,32 +62,32 @@ export function DashboardShell({
               <nav className="mt-5 flex flex-wrap gap-2">
                 <Link
                   href="/dashboard"
-                  className="rounded-full border border-border/70 px-4 py-2 text-xs font-medium text-white"
+                  className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/cases/new"
-                  className="rounded-full border border-border/70 px-4 py-2 text-xs font-medium text-white"
+                  className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
                 >
                   Nuevo caso
                 </Link>
                 <Link
                   href="/profile"
-                  className="rounded-full border border-border/70 px-4 py-2 text-xs font-medium text-white"
+                  className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
                 >
                   Perfil
                 </Link>
                 <Link
                   href="/security"
-                  className="rounded-full border border-border/70 px-4 py-2 text-xs font-medium text-white"
+                  className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
                 >
                   Seguridad
                 </Link>
                 {isAdmin ? (
                   <Link
                     href="/admin"
-                    className="rounded-full border border-accent/35 bg-accent/10 px-4 py-2 text-xs font-medium text-white"
+                    className="surface-accent rounded-full px-4 py-2 text-xs font-medium text-white"
                   >
                     Admin
                   </Link>
@@ -98,17 +98,24 @@ export function DashboardShell({
               <div className="flex justify-start xl:justify-end">
                 <SignOutButton />
               </div>
-              <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-background-elevated/70 p-3">
-                <div className="flex size-11 items-center justify-center rounded-2xl bg-accent/15 text-sm font-semibold text-accent">
+              <div className="surface-muted rounded-[1.5rem] p-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex size-12 items-center justify-center rounded-2xl bg-accent/15 text-sm font-semibold text-accent">
                   {fullName ? fullName.slice(0, 1).toUpperCase() : "A"}
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-white">
-                    {fullName || "Usuario autenticado"}
-                  </p>
-                  <p className="truncate text-sm text-muted-foreground">
-                    {profile?.email ?? "Sesión protegida"}
-                  </p>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <p className="truncate text-base font-semibold text-white">
+                        {fullName || "Usuario autenticado"}
+                      </p>
+                      <span className="rounded-full border border-border/70 bg-background/35 px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                        Cuenta activa
+                      </span>
+                    </div>
+                    <p className="mt-1 truncate text-sm text-sky-100/80">
+                      {profile?.email ?? "Sesión protegida"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

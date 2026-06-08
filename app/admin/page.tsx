@@ -46,7 +46,7 @@ export default async function AdminPage() {
       profile={adminProfile}
     >
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="glass-panel rounded-[1.5rem] p-5">
+        <div className="surface-contrast rounded-[1.5rem] p-5">
           <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
             Usuarios
           </p>
@@ -54,7 +54,7 @@ export default async function AdminPage() {
             {totalUsers}
           </p>
         </div>
-        <div className="glass-panel rounded-[1.5rem] p-5">
+        <div className="surface-muted rounded-[1.5rem] p-5">
           <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
             Casos
           </p>
@@ -62,7 +62,7 @@ export default async function AdminPage() {
             {totalCases}
           </p>
         </div>
-        <div className="glass-panel rounded-[1.5rem] p-5">
+        <div className="surface-accent rounded-[1.5rem] p-5">
           <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
             Informes listos
           </p>
@@ -70,7 +70,7 @@ export default async function AdminPage() {
             {readyReports}
           </p>
         </div>
-        <div className="glass-panel rounded-[1.5rem] p-5">
+        <div className="surface-muted rounded-[1.5rem] p-5">
           <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
             Revisión humana
           </p>
@@ -80,7 +80,7 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="glass-panel rounded-[1.75rem] p-5">
+      <section className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
@@ -106,7 +106,7 @@ export default async function AdminPage() {
               return (
                 <div
                   key={item.id}
-                  className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4"
+                  className="surface-contrast rounded-[1.35rem] p-4"
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -121,10 +121,10 @@ export default async function AdminPage() {
                   </div>
 
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-border/70 px-4 py-3 text-sm text-white/90">
+                    <div className="rounded-2xl border border-sky-300/10 bg-sky-300/5 px-4 py-3 text-sm text-white/90">
                       País: {profile?.country || "No registrado"}
                     </div>
-                    <div className="rounded-2xl border border-border/70 px-4 py-3 text-sm text-white/90">
+                    <div className="rounded-2xl border border-accent/15 bg-accent/5 px-4 py-3 text-sm text-white/90">
                       Teléfono: {profile?.phone || "No registrado"}
                     </div>
                   </div>
@@ -139,7 +139,7 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="glass-panel rounded-[1.75rem] p-5">
+      <section className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
@@ -166,7 +166,7 @@ export default async function AdminPage() {
               return (
                 <div
                   key={item.id}
-                  className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4"
+                  className="surface-contrast rounded-[1.35rem] p-4"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
@@ -178,22 +178,22 @@ export default async function AdminPage() {
                         {item.country || "País no especificado"}
                       </p>
                     </div>
-                    <div className="rounded-full border border-border/70 px-3 py-1 text-xs font-medium text-white">
+                    <div className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 text-xs font-medium text-white">
                       {item.status}
                     </div>
                   </div>
 
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-border/70 px-4 py-3 text-sm text-white/90">
+                    <div className="rounded-2xl border border-sky-300/10 bg-sky-300/5 px-4 py-3 text-sm text-white/90">
                       Cliente: {ownerName || ownerUser?.email || item.user_id}
                     </div>
-                    <div className="rounded-2xl border border-border/70 px-4 py-3 text-sm text-white/90">
+                    <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
                       Fecha: {formatDate(item.created_at)}
                     </div>
-                    <div className="rounded-2xl border border-border/70 px-4 py-3 text-sm text-white/90">
+                    <div className="rounded-2xl border border-accent/15 bg-accent/5 px-4 py-3 text-sm text-white/90">
                       Monto: {formatCurrency(item.lost_amount, item.currency ?? "USD")}
                     </div>
-                    <div className="rounded-2xl border border-border/70 px-4 py-3 text-sm text-white/90">
+                    <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
                       <Link
                         href={`/cases/${item.id}/report`}
                         className="font-medium text-accent"
