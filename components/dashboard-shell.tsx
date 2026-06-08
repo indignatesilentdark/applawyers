@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { MobilePanelMenu } from "@/components/mobile-panel-menu";
 import type { ProfileRow } from "@/lib/types";
 import { SignOutButton } from "@/components/sign-out-button";
 
@@ -22,14 +23,18 @@ export function DashboardShell({
   const fullName = [profile?.first_name, profile?.last_name]
     .filter(Boolean)
     .join(" ");
+  const mobileTitle = eyebrow ?? title;
 
   return (
     <main className="page-shell overflow-x-clip py-5 lg:py-8">
       <div className="space-y-5">
         <header className="glass-panel relative overflow-hidden rounded-[1.75rem] p-5 lg:p-6">
-          <div className="absolute right-5 top-5 z-10 xl:hidden">
-            <SignOutButton />
-          </div>
+          <MobilePanelMenu
+            isAdmin={isAdmin}
+            title={mobileTitle}
+            userEmail={profile?.email}
+            userName={fullName || undefined}
+          />
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(19rem,0.8fr)] xl:items-start">
             <div className="min-w-0">
               <div className="surface-contrast mb-4 min-w-0 overflow-hidden rounded-[1.35rem] pr-16 pl-3 py-3 lg:px-4 lg:py-4 xl:pr-4">
@@ -54,15 +59,15 @@ export function DashboardShell({
                 </div>
               </div>
               {eyebrow ? (
-                <p className="mb-2 text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
+                <p className="mb-2 hidden text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground xl:block">
                   {eyebrow}
                 </p>
               ) : null}
-              <h1 className="text-2xl font-semibold tracking-[-0.04em] text-white">
+              <h1 className="hidden text-2xl font-semibold tracking-[-0.04em] text-white xl:block">
                 {title}
               </h1>
 
-              <nav className="mt-5 flex flex-wrap gap-2">
+              <nav className="mt-5 hidden flex-wrap gap-2 xl:flex">
                 <Link
                   href="/dashboard"
                   className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
