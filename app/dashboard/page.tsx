@@ -1,7 +1,16 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import {
+  FileClock,
+  FolderSearch,
+  LockKeyhole,
+  ScanSearch,
+} from "lucide-react";
+import { CaseBenefitsGrid } from "@/components/case-benefits-grid";
 import { CaseCard } from "@/components/case-card";
-import { DashboardShell } from "@/components/dashboard-shell";
+import { CaseStatusCard } from "@/components/case-status-card";
+import { DossierPrivateHeader } from "@/components/dossier-private-header";
+import { HeroCaseAnalysis } from "@/components/hero-case-analysis";
+import { InvestigationTimeline } from "@/components/investigation-timeline";
 import { isAdminEmail } from "@/lib/admin";
 import { requirePortalUser } from "@/lib/auth";
 
@@ -33,102 +42,134 @@ export default async function DashboardPage() {
     : { data: [] as Array<{ case_id: string }> };
 
   const reportCaseIds = new Set((reports ?? []).map((item) => item.case_id));
+  const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
+  const hasCases = Boolean(cases?.length);
 
   return (
-    <DashboardShell
-      title="Dossier privado"
-      eyebrow="Panel seguro"
-      isAdmin={isAdminEmail(user.email)}
-      profile={profile}
-      summaryText="Centraliza tu dossier, los casos abiertos y el acceso directo al análisis profundo desde una sola vista."
-    >
-      <div className="dashboard-grid">
-        <div className="space-y-5">
-          <section className="glass-panel desktop-hero-panel rounded-[1.75rem] p-5 lg:p-6">
-            <div className="relative">
-              <p className="text-sm text-muted-foreground">
-                Hola{profile.first_name ? `, ${profile.first_name}` : ""}.
-              </p>
-              <h2 className="mt-2 max-w-2xl text-3xl font-semibold tracking-[-0.05em] text-white lg:text-[3.2rem]">
-                Análisis profundo de tu caso
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground lg:text-base lg:leading-8">
-                Completa la información necesaria para que el sistema prepare un
-                informe preliminar detallado con apoyo de IA.
-              </p>
-              <Link
-                href="/cases/new"
-                className="mt-6 inline-flex rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground"
-              >
-                Analizar mi caso a fondo
-              </Link>
-            </div>
-          </section>
+    <main className="page-shell space-y-6 py-5 lg:space-y-7 lg:py-8">
+      <DossierPrivateHeader
+        isAdmin={isAdminEmail(user.email)}
+        userEmail={profile.email}
+        userName={fullName}
+      />
 
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm uppercase tracking-[0.24em] text-muted-foreground">
-                Casos creados
-              </h3>
-              <span className="text-sm text-muted-foreground">
-                {cases?.length ?? 0} registro{(cases?.length ?? 0) === 1 ? "" : "s"}
-              </span>
-            </div>
-
-            {cases?.length ? (
-              <div className="grid gap-4 xl:grid-cols-2">
-                {cases.map((caseItem) => (
-                  <CaseCard
-                    key={caseItem.id}
-                    caseItem={caseItem}
-                    hasReport={reportCaseIds.has(caseItem.id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="glass-panel rounded-[1.5rem] p-5 text-sm leading-7 text-muted-foreground">
-                Todavía no has creado casos. Cuando completes el formulario de
-                análisis, aquí verás el estado del proceso y el acceso al informe.
-              </div>
-            )}
-          </section>
-        </div>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.42fr)]">
+        <HeroCaseAnalysis ctaHref="/cases/new" />
 
         <aside className="space-y-4">
-          <section className="glass-panel rounded-[1.5rem] p-5">
-            <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
-              Resumen del panel
-            </p>
-            <div className="mt-4 grid gap-3">
-              <div className="rounded-[1.25rem] border border-border/80 bg-background-elevated/60 p-4">
-                <p className="text-sm text-muted-foreground">Casos creados</p>
-                <p className="mt-2 text-2xl font-semibold text-white">
-                  {cases?.length ?? 0}
-                </p>
+          <section className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex size-11 items-center justify-center rounded-2xl border border-border/70 bg-background/35 text-sky-100/84">
+                <FolderSearch className="size-5" />
               </div>
-              <div className="rounded-[1.25rem] border border-border/80 bg-background-elevated/60 p-4">
-                <p className="text-sm text-muted-foreground">Informes listos</p>
-                <p className="mt-2 text-2xl font-semibold text-white">
-                  {reportCaseIds.size}
+              <div>
+                <p className="text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
+                  Estado de tu expediente
                 </p>
+                <h2 className="mt-1 text-xl font-semibold text-white">
+                  Centro de investigación
+                </h2>
               </div>
             </div>
-          </section>
 
-          <section className="glass-panel rounded-[1.5rem] p-5">
-            <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
-              Siguiente movimiento
-            </p>
-            <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em] text-white">
-              Continúa con tu análisis
-            </h3>
-            <p className="mt-3 text-sm leading-7 text-muted-foreground">
-              Reúne evidencia, completa el flujo profundo y descarga el dossier
-              cuando el informe esté listo.
-            </p>
+            <div className="mt-5 space-y-3">
+              <CaseStatusCard
+                description="El caso todavía no ha iniciado el flujo profundo."
+                icon={FileClock}
+                label="Expediente"
+                tone="amber"
+                value={hasCases ? "En curso" : "No iniciado"}
+              />
+              <CaseStatusCard
+                description="La IA está lista para revisar tus evidencias y contexto."
+                icon={ScanSearch}
+                label="Análisis"
+                tone="emerald"
+                value="Pendiente"
+              />
+              <CaseStatusCard
+                description="El informe aparecerá aquí cuando completes el análisis."
+                icon={FolderSearch}
+                label="Informe"
+                tone="slate"
+                value={reportCaseIds.size ? "Disponible" : "No disponible"}
+              />
+            </div>
+
+            <div className="surface-muted mt-5 rounded-[1.35rem] p-4">
+              <div className="flex items-start gap-3">
+                <div className="inline-flex size-11 items-center justify-center rounded-2xl border border-border/70 bg-background/35 text-accent">
+                  <LockKeyhole className="size-5" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-white">
+                    Privacidad garantizada
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-sky-100/72">
+                    Este es un espacio 100% confidencial. Solo tú tienes acceso.
+                  </p>
+                </div>
+              </div>
+            </div>
           </section>
         </aside>
       </div>
-    </DashboardShell>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <InvestigationTimeline currentStep={1} />
+        <CaseBenefitsGrid />
+      </div>
+
+      <section className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="inline-flex size-12 items-center justify-center rounded-2xl border border-accent/20 bg-accent/8 text-accent">
+              <LockKeyhole className="size-6" />
+            </div>
+            <div>
+              <p className="text-xl font-semibold tracking-[-0.03em] text-white">
+                Estás en buenas manos
+              </p>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-sky-100/72">
+                Abogados especializados en fraudes financieros, criptoactivos y
+                delitos tecnológicos respaldan este proceso preliminar.
+              </p>
+            </div>
+          </div>
+
+          <div className="surface-muted rounded-[1.35rem] px-5 py-4 text-sm leading-7 text-sky-100/76">
+            Más de 150 análisis preliminares procesados en flujos privados.
+          </div>
+        </div>
+      </section>
+
+      {hasCases ? (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
+                Expedientes previos
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-white">
+                Investigaciones en seguimiento
+              </h2>
+            </div>
+            <span className="text-sm text-sky-100/68">
+              {cases?.length ?? 0} registro{(cases?.length ?? 0) === 1 ? "" : "s"}
+            </span>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-2">
+            {cases?.map((caseItem) => (
+              <CaseCard
+                key={caseItem.id}
+                caseItem={caseItem}
+                hasReport={reportCaseIds.has(caseItem.id)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </main>
   );
 }

@@ -4,10 +4,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type SignOutButtonProps = {
+  forceLabel?: boolean;
   iconOnly?: boolean;
 };
 
-export function SignOutButton({ iconOnly = false }: SignOutButtonProps) {
+export function SignOutButton({
+  forceLabel = false,
+  iconOnly = false,
+}: SignOutButtonProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,7 +49,7 @@ export function SignOutButton({ iconOnly = false }: SignOutButtonProps) {
         <path d="M17 12H9" strokeLinecap="round" />
       </svg>
       {iconOnly ? null : (
-        <span className="hidden md:inline">
+        <span className={forceLabel ? "inline" : "hidden md:inline"}>
           {isLoading ? "Saliendo..." : "Cerrar sesión"}
         </span>
       )}
