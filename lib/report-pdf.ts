@@ -1,4 +1,6 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import type { CaseEvidenceRow, CaseRow, ProfileRow, StructuredReport } from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
@@ -20,6 +22,7 @@ type PdfContext = {
 
 const PAGE_MARGIN = 48;
 const PAGE_SIZE: [number, number] = [595.28, 841.89];
+const LOGO_PATH = path.join(process.cwd(), "public", "logo-applawyers-original.png");
 
 function sanitizeText(value: string) {
   return value.replace(/[^\x20-\x7E\xA0-\xFF\n]/g, "");
@@ -168,6 +171,8 @@ export async function generateReportPdfBuffer({
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const logoBytes = await readFile(LOGO_PATH);
+  const logoImage = await pdf.embedPng(logoBytes);
 
   let context: PdfContext = {
     boldFont,
@@ -177,6 +182,31 @@ export async function generateReportPdfBuffer({
     pdf,
     y: PAGE_SIZE[1] - PAGE_MARGIN,
   };
+
+  const logoScale = logoImage.scale(0.12);
+  context.page.drawImage(logoImage, {
+    height: logoScale.height,
+    width: logoScale.width,
+    x: PAGE_MARGIN,
+    y: context.y - logoScale.height + 10,
+  });
+
+  context.page.drawRectangle({
+    color: rgb(0.08, 0.18, 0.22),
+    height: logoScale.height + 16,
+    width: logoScale.width + 16,
+    x: PAGE_MARGIN - 8,
+    y: context.y - logoScale.height + 2,
+  });
+
+  context.page.drawImage(logoImage, {
+    height: logoScale.height,
+    width: logoScale.width,
+    x: PAGE_MARGIN,
+    y: context.y - logoScale.height + 10,
+  });
+
+  context.y -= logoScale.height + 14;
 
   context = drawTextBlock(context, "APPROVEDLAWYER - DOSSIER PRELIMINAR", {
     color: rgb(0.53, 0.71, 0.95),
