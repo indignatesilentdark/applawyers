@@ -10,27 +10,27 @@ type OnboardingFormProps = {
 };
 
 const COUNTRY_OPTIONS = [
-  { name: "Argentina", dialCode: "+54" },
-  { name: "Bolivia", dialCode: "+591" },
-  { name: "Brasil", dialCode: "+55" },
-  { name: "Chile", dialCode: "+56" },
-  { name: "Colombia", dialCode: "+57" },
-  { name: "Costa Rica", dialCode: "+506" },
-  { name: "Cuba", dialCode: "+53" },
-  { name: "Ecuador", dialCode: "+593" },
-  { name: "Espana", dialCode: "+34" },
-  { name: "El Salvador", dialCode: "+503" },
-  { name: "Estados Unidos", dialCode: "+1" },
-  { name: "Guatemala", dialCode: "+502" },
-  { name: "Haiti", dialCode: "+509" },
-  { name: "Honduras", dialCode: "+504" },
-  { name: "Mexico", dialCode: "+52" },
-  { name: "Nicaragua", dialCode: "+505" },
-  { name: "Panama", dialCode: "+507" },
-  { name: "Paraguay", dialCode: "+595" },
-  { name: "Peru", dialCode: "+51" },
-  { name: "Uruguay", dialCode: "+598" },
-  { name: "Venezuela", dialCode: "+58" },
+  { name: "Argentina", dialCode: "+54", flag: "🇦🇷" },
+  { name: "Bolivia", dialCode: "+591", flag: "🇧🇴" },
+  { name: "Brasil", dialCode: "+55", flag: "🇧🇷" },
+  { name: "Chile", dialCode: "+56", flag: "🇨🇱" },
+  { name: "Colombia", dialCode: "+57", flag: "🇨🇴" },
+  { name: "Costa Rica", dialCode: "+506", flag: "🇨🇷" },
+  { name: "Cuba", dialCode: "+53", flag: "🇨🇺" },
+  { name: "Ecuador", dialCode: "+593", flag: "🇪🇨" },
+  { name: "Espana", dialCode: "+34", flag: "🇪🇸" },
+  { name: "El Salvador", dialCode: "+503", flag: "🇸🇻" },
+  { name: "Estados Unidos", dialCode: "+1", flag: "🇺🇸" },
+  { name: "Guatemala", dialCode: "+502", flag: "🇬🇹" },
+  { name: "Haiti", dialCode: "+509", flag: "🇭🇹" },
+  { name: "Honduras", dialCode: "+504", flag: "🇭🇳" },
+  { name: "Mexico", dialCode: "+52", flag: "🇲🇽" },
+  { name: "Nicaragua", dialCode: "+505", flag: "🇳🇮" },
+  { name: "Panama", dialCode: "+507", flag: "🇵🇦" },
+  { name: "Paraguay", dialCode: "+595", flag: "🇵🇾" },
+  { name: "Peru", dialCode: "+51", flag: "🇵🇪" },
+  { name: "Uruguay", dialCode: "+598", flag: "🇺🇾" },
+  { name: "Venezuela", dialCode: "+58", flag: "🇻🇪" },
 ];
 
 function findCountryOption(countryName?: string) {
@@ -191,7 +191,7 @@ export function OnboardingForm({
             <option value="">Selecciona tu pais</option>
             {COUNTRY_OPTIONS.map((country) => (
               <option key={country.name} value={country.name}>
-                {country.name}
+                {country.flag} {country.name}
               </option>
             ))}
           </select>
