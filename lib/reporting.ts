@@ -264,14 +264,28 @@ export async function generateStructuredReport(
 
 export function renderReportAsText(report: StructuredReport) {
   return [
+    report.investigation
+      ? `Resultado preliminar\n- Índice del caso: ${report.investigation.score_result.preliminaryCaseIndex}/100\n- Riesgo estimado: ${report.investigation.score_result.fraudRiskScore}/100\n- Trazabilidad: ${report.investigation.score_result.traceabilityScore}/100\n- Evidencia: ${report.investigation.score_result.evidenceQualityScore}/100\n- Riesgo de segunda estafa: ${report.investigation.score_result.recoveryScamRiskScore}/100\n- Prioridad: ${report.investigation.score_result.recommendedPriority}`
+      : null,
+    report.findings?.length
+      ? `Hallazgos principales\n- ${report.findings.map((item) => `${item.title}: ${item.explanation}`).join("\n- ")}`
+      : null,
     `Resumen ejecutivo\n${report.executiveSummary}`,
     `Cronología\n- ${report.chronology.join("\n- ")}`,
     `Alertas detectadas\n- ${report.redFlags.join("\n- ")}`,
     `Análisis de evidencia\n- ${report.evidenceAnalysis.join("\n- ")}`,
     `Rutas de trazabilidad\n- ${report.traceabilityRoutes.join("\n- ")}`,
     `Información faltante\n- ${report.missingInformation.join("\n- ")}`,
+    report.urgentActions?.length
+      ? `Acciones urgentes\n- ${report.urgentActions.join("\n- ")}`
+      : null,
+    report.recommendedDocuments?.length
+      ? `Documentos recomendados\n- ${report.recommendedDocuments.join("\n- ")}`
+      : null,
     `Próximos pasos\n- ${report.nextSteps.join("\n- ")}`,
     `Nivel de complejidad\n${report.complexity}`,
     `Disclaimer\n${report.disclaimer}`,
-  ].join("\n\n");
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }

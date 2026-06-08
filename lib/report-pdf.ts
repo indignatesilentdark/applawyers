@@ -162,6 +162,18 @@ function drawSection(
   return nextContext;
 }
 
+function drawKeyValueSection(
+  context: PdfContext,
+  title: string,
+  rows: Array<{ label: string; value: string }>,
+) {
+  return drawSection(
+    context,
+    title,
+    rows.map((row) => `${row.label}: ${row.value}`),
+  );
+}
+
 export async function generateReportPdfBuffer({
   caseRow,
   evidence,
@@ -229,6 +241,104 @@ export async function generateReportPdfBuffer({
       lineHeight: 16,
     },
   );
+
+  if (report.investigation) {
+    context = drawSection(context, "Resultado preliminar", [
+      `Indice preliminar del caso: ${report.investigation.score_result.preliminaryCaseIndex}/100`,
+      `Riesgo estimado: ${report.investigation.score_result.fraudRiskScore}/100`,
+      `Trazabilidad: ${report.investigation.score_result.traceabilityScore}/100`,
+      `Calidad de evidencia: ${report.investigation.score_result.evidenceQualityScore}/100`,
+      `Riesgo de segunda estafa: ${report.investigation.score_result.recoveryScamRiskScore}/100`,
+      `Prioridad recomendada: ${report.investigation.score_result.recommendedPriority}`,
+    ]);
+
+    context = drawSection(
+      context,
+      "Hallazgos principales",
+      report.investigation.findings.map(
+        (item) =>
+          `${item.title} | severidad ${item.severity} | fuente ${item.source} | confianza ${Math.round(item.confidence * 100)}% | ${item.explanation}`,
+      ),
+    );
+
+    context = drawKeyValueSection(context, "Analisis blockchain", [
+      {
+        label: "Red",
+        value: report.investigation.blockchain_result.detectedNetwork,
+      },
+      {
+        label: "Wallet",
+        value: report.investigation.blockchain_result.walletAddress ?? "No verificado",
+      },
+      {
+        label: "Hash",
+        value: report.investigation.blockchain_result.transactionHash ?? "No verificado",
+      },
+      {
+        label: "Transacciones encontradas",
+        value: String(report.investigation.blockchain_result.transactionCount),
+      },
+      {
+        label: "Trazabilidad",
+        value: report.investigation.blockchain_result.traceabilityLevel,
+      },
+      {
+        label: "Primera fecha",
+        value: report.investigation.blockchain_result.firstTransactionAt
+          ? formatDate(report.investigation.blockchain_result.firstTransactionAt)
+          : "No verificado",
+      },
+      {
+        label: "Ultima fecha",
+        value: report.investigation.blockchain_result.lastTransactionAt
+          ? formatDate(report.investigation.blockchain_result.lastTransactionAt)
+          : "No verificado",
+      },
+    ]);
+
+    context = drawKeyValueSection(context, "Investigacion de plataforma", [
+      {
+        label: "Dominio",
+        value: report.investigation.domain_result.domain ?? "No verificado",
+      },
+      {
+        label: "Antiguedad",
+        value:
+          report.investigation.domain_result.domainAgeDays != null
+            ? `${report.investigation.domain_result.domainAgeDays} dias`
+            : "No verificado",
+      },
+      {
+        label: "Registrar",
+        value: report.investigation.domain_result.registrar ?? "No verificado",
+      },
+      {
+        label: "Privacidad WHOIS",
+        value: report.investigation.domain_result.privacyProtection,
+      },
+      {
+        label: "Riesgo de dominio",
+        value: report.investigation.domain_result.riskLevel,
+      },
+      {
+        label: "Resultado regulatorio",
+        value: report.investigation.regulatory_result.summary,
+      },
+      {
+        label: "Reputacion publica",
+        value: report.investigation.public_intel_result.summary,
+      },
+    ]);
+
+    context = drawSection(
+      context,
+      "Evidencias",
+      report.investigation.evidence_result.map(
+        (item) =>
+          `${item.fileName} | utilidad ${item.probativeValue} | ${item.summary}${item.extractedText ? ` | texto: ${item.extractedText}` : ""}`,
+      ),
+    );
+  }
 
   context = drawSection(context, "Resumen ejecutivo", [report.executiveSummary]);
   context = drawSection(context, "Cronologia preliminar", report.chronology);

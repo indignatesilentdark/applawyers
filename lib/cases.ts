@@ -1,9 +1,7 @@
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { sendCaseReportEmail } from "@/lib/report-delivery";
-import {
-  generateStructuredReport,
-  renderReportAsText,
-} from "@/lib/reporting";
+import { runCaseInvestigation } from "@/lib/investigation";
+import { renderReportAsText } from "@/lib/reporting";
 
 export async function analyzeAndPersistCase(
   caseId: string,
@@ -30,8 +28,54 @@ export async function analyzeAndPersistCase(
     .eq("id", caseId)
     .eq("user_id", userId);
 
-  const report = await generateStructuredReport(caseRow, evidenceRows ?? []);
+  await admin.from("investigation_results").upsert(
+    {
+      case_id: caseId,
+      status: "running",
+      timeline: [
+        {
+          code: "case_created",
+          label: "Caso creado",
+          message: "El expediente fue creado y la investigación inició.",
+          status: "completed",
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+    },
+    { onConflict: "case_id" },
+  );
+
+  const { investigation, report } = await runCaseInvestigation(
+    caseRow,
+    evidenceRows ?? [],
+  );
   const reportText = renderReportAsText(report);
+
+  const { error: investigationError } = await admin
+    .from("investigation_results")
+    .upsert(
+      {
+        blockchain_result: investigation.blockchain_result,
+        case_id: caseId,
+        domain_result: investigation.domain_result,
+        evidence_result: investigation.evidence_result,
+        findings: investigation.findings,
+        public_intel_result: investigation.public_intel_result,
+        regulatory_result: investigation.regulatory_result,
+        score_result: investigation.score_result,
+        sources: investigation.sources,
+        status: investigation.status,
+        timeline: investigation.timeline,
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "case_id",
+      },
+    );
+
+  if (investigationError) {
+    throw investigationError;
+  }
 
   const { error: reportError } = await admin.from("case_reports").upsert(
     {
@@ -53,7 +97,10 @@ export async function analyzeAndPersistCase(
     .from("cases")
     .update({
       ai_report: report,
-      status: "Informe listo",
+      status:
+        investigation.status === "partial"
+          ? "Requiere información"
+          : "Informe listo",
       updated_at: new Date().toISOString(),
     })
     .eq("id", caseId)

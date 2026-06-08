@@ -77,6 +77,23 @@ export async function POST(request: Request) {
       throw caseError ?? new Error("No pudimos crear el caso.");
     }
 
+    await admin.from("investigation_results").upsert(
+      {
+        case_id: createdCase.id,
+        status: "pending",
+        timeline: [
+          {
+            code: "case_created",
+            label: "Caso creado",
+            message: "El expediente quedó registrado y espera investigación.",
+            status: "completed",
+            updatedAt: new Date().toISOString(),
+          },
+        ],
+      },
+      { onConflict: "case_id" },
+    );
+
     const files = formData
       .getAll("files")
       .filter((item): item is File => item instanceof File && item.size > 0);

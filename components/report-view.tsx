@@ -5,7 +5,14 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/status-badge";
-import type { CaseEvidenceRow, CaseRow, ProfileRow, StructuredReport } from "@/lib/types";
+import type {
+  CaseEvidenceRow,
+  CaseRow,
+  InvestigationFinding,
+  ProfileRow,
+  StructuredReport,
+  VerificationStatus,
+} from "@/lib/types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 type ReportViewProps = {
@@ -106,6 +113,56 @@ function SectionCard({
   );
 }
 
+function verificationLabel(status: VerificationStatus) {
+  switch (status) {
+    case "verified":
+      return "Verificado con fuente";
+    case "not_verified":
+      return "No verificado";
+    case "source_unavailable":
+      return "Fuente no disponible";
+    case "requires_human_review":
+      return "Requiere revisión humana";
+    case "public_signal":
+      return "Señal pública";
+    case "partial_match":
+      return "Coincidencia parcial";
+    case "mock":
+      return "Mock / dev";
+    default:
+      return "No verificado";
+  }
+}
+
+function verificationClassName(status: VerificationStatus) {
+  switch (status) {
+    case "verified":
+      return "border-emerald-300/20 bg-emerald-300/8 text-emerald-200";
+    case "public_signal":
+    case "partial_match":
+      return "border-cyan-300/20 bg-cyan-300/8 text-cyan-200";
+    case "requires_human_review":
+      return "border-amber-300/20 bg-amber-300/8 text-amber-200";
+    case "source_unavailable":
+    case "not_verified":
+    case "mock":
+    default:
+      return "border-border/70 bg-background/35 text-sky-100/70";
+  }
+}
+
+function severityClassName(severity: InvestigationFinding["severity"]) {
+  switch (severity) {
+    case "Alta":
+      return "border-rose-400/25 bg-rose-400/8 text-rose-100";
+    case "Media":
+      return "border-amber-300/25 bg-amber-300/8 text-amber-100";
+    case "Baja":
+    default:
+      return "border-emerald-300/25 bg-emerald-300/8 text-emerald-100";
+  }
+}
+
 export function ReportView({
   caseRow,
   evidenceRows,
@@ -114,6 +171,7 @@ export function ReportView({
 }: ReportViewProps) {
   const router = useRouter();
   const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ");
+  const investigation = report?.investigation;
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [isRequestingReview, setIsRequestingReview] = useState(false);
@@ -174,6 +232,31 @@ export function ReportView({
       value: `${evidenceRows.length} archivo${evidenceRows.length === 1 ? "" : "s"}`,
     },
   ];
+
+  const scoreCards = investigation
+    ? [
+        {
+          label: "Riesgo estimado",
+          value: `${investigation.score_result.fraudRiskScore}/100`,
+        },
+        {
+          label: "Trazabilidad",
+          value: `${investigation.score_result.traceabilityScore}/100`,
+        },
+        {
+          label: "Evidencia",
+          value: `${investigation.score_result.evidenceQualityScore}/100`,
+        },
+        {
+          label: "Segunda estafa",
+          value: `${investigation.score_result.recoveryScamRiskScore}/100`,
+        },
+        {
+          label: "Prioridad",
+          value: investigation.score_result.recommendedPriority,
+        },
+      ]
+    : [];
 
   return (
     <div className="space-y-5">
@@ -244,9 +327,198 @@ export function ReportView({
         </div>
       </motion.section>
 
+      {investigation ? (
+        <>
+          <motion.section
+            className="glass-panel overflow-hidden rounded-[1.9rem] border border-border/80"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.04 }}
+          >
+            <div className="h-1 w-full bg-gradient-to-r from-accent via-sky-400 to-transparent" />
+            <div className="p-5 sm:p-6">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
+                    Resultado preliminar
+                  </p>
+                  <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-white">
+                    Índice preliminar del caso
+                  </h2>
+                  <p className="mt-3 max-w-3xl text-sm leading-7 text-sky-100/72">
+                    Este reporte combina análisis automatizado, fuentes públicas y
+                    evidencias proporcionadas. No sustituye revisión legal humana.
+                  </p>
+                </div>
+                <div className="rounded-full border border-accent/20 bg-accent/8 px-4 py-2 text-sm text-accent">
+                  {investigation.status === "completed"
+                    ? "Investigación completa"
+                    : investigation.status === "partial"
+                      ? "Investigación parcial"
+                      : "Investigación en curso"}
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                {scoreCards.map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-[1.35rem] border border-border/80 bg-background-elevated/70 p-4"
+                  >
+                    <p className="text-[0.72rem] uppercase tracking-[0.18em] text-muted-foreground">
+                      {item.label}
+                    </p>
+                    <p className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 rounded-[1.4rem] border border-border/80 bg-background-elevated/60 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium text-white">
+                    Índice preliminar del caso:{" "}
+                    <span className="text-accent">
+                      {investigation.score_result.preliminaryCaseIndex}/100
+                    </span>
+                  </p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    {investigation.score_result.legalComplexity} complejidad
+                  </p>
+                </div>
+                <div className="mt-4 h-3 overflow-hidden rounded-full bg-background/65">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-accent via-cyan-300 to-sky-300"
+                    style={{
+                      width: `${investigation.score_result.preliminaryCaseIndex}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          <section className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(24rem,0.92fr)]">
+            <SectionCard icon={<IconAlert />} title="Hallazgos principales">
+              <div className="grid gap-3">
+                {investigation.findings.map((item) => (
+                  <div
+                    key={`${item.type}-${item.title}`}
+                    className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-full border px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.18em] ${severityClassName(item.severity)}`}
+                      >
+                        {item.severity}
+                      </span>
+                      <span
+                        className={`rounded-full border px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.18em] ${verificationClassName(item.sourceStatus)}`}
+                      >
+                        {verificationLabel(item.sourceStatus)}
+                      </span>
+                      <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                        {Math.round(item.confidence * 100)}% confianza
+                      </span>
+                    </div>
+                    <p className="mt-3 text-base font-semibold text-white">
+                      {item.title}
+                    </p>
+                    <p className="mt-2 text-sm leading-7 text-sky-100/74">
+                      {item.explanation}
+                    </p>
+                    <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                      Fuente: {item.source}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+
+            <SectionCard icon={<IconRoute />} title="Estado de investigación">
+              <div className="space-y-3">
+                {investigation.timeline.map((item) => (
+                  <div
+                    key={`${item.code}-${item.updatedAt}`}
+                    className="rounded-[1.25rem] border border-border/70 bg-background-elevated/60 p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <span className="text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground">
+                        {item.status}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-sky-100/72">
+                      {item.message}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+          </section>
+        </>
+      ) : null}
+
       {report ? (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)]">
           <div className="space-y-5">
+          {investigation ? (
+            <SectionCard icon={<IconRoute />} title="Análisis blockchain">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Red</p>
+                  <p className="mt-2">{investigation.blockchain_result.detectedNetwork}</p>
+                </div>
+                <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Trazabilidad</p>
+                  <p className="mt-2">{investigation.blockchain_result.traceabilityLevel}</p>
+                </div>
+                <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white sm:col-span-2">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Wallet</p>
+                  <p className="mt-2 break-all">{investigation.blockchain_result.walletAddress ?? "No verificado"}</p>
+                </div>
+                <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white sm:col-span-2">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Hash</p>
+                  <p className="mt-2 break-all">{investigation.blockchain_result.transactionHash ?? "No verificado"}</p>
+                </div>
+              </div>
+              <div className="mt-4 space-y-3">
+                <p className="text-white">
+                  Transacciones encontradas: {investigation.blockchain_result.transactionCount}
+                </p>
+                <p className="text-sky-100/72">
+                  Primera fecha: {investigation.blockchain_result.firstTransactionAt ? formatDate(investigation.blockchain_result.firstTransactionAt) : "No verificado"}
+                </p>
+                <p className="text-sky-100/72">
+                  Última fecha: {investigation.blockchain_result.lastTransactionAt ? formatDate(investigation.blockchain_result.lastTransactionAt) : "No verificado"}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {investigation.blockchain_result.sources.map((source) =>
+                    source.url ? (
+                      <a
+                        key={`${source.label}-${source.url}`}
+                        href={source.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-full border border-accent/20 bg-accent/8 px-3 py-2 text-xs uppercase tracking-[0.18em] text-accent"
+                      >
+                        Ver fuente
+                      </a>
+                    ) : (
+                      <span
+                        key={`${source.label}-${source.checkedAt}`}
+                        className={`rounded-full border px-3 py-2 text-xs uppercase tracking-[0.18em] ${verificationClassName(source.status)}`}
+                      >
+                        {verificationLabel(source.status)}
+                      </span>
+                    ),
+                  )}
+                </div>
+              </div>
+            </SectionCard>
+          ) : null}
+
           <SectionCard icon={<IconSpark />} title="Resumen ejecutivo">
             <p className="text-[0.98rem] leading-8 text-white/95">
               {report.executiveSummary}
@@ -326,7 +598,30 @@ export function ReportView({
             title="Análisis de evidencia aportada"
           >
             <div className="space-y-3">
-              {report.evidenceAnalysis.map((item) => (
+              {investigation?.evidence_result.length ? investigation.evidence_result.map((item) => (
+                <div
+                  key={item.evidenceId}
+                  className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-base font-semibold">{item.fileName}</p>
+                    <span
+                      className={`rounded-full border px-2.5 py-1 text-[0.68rem] uppercase tracking-[0.18em] ${verificationClassName(item.sourceStatus)}`}
+                    >
+                      {verificationLabel(item.sourceStatus)}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-sky-100/74">{item.summary}</p>
+                  <p className="mt-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Utilidad probatoria: {item.probativeValue}
+                  </p>
+                  {item.extractedText ? (
+                    <p className="mt-3 text-sm leading-7 text-sky-100/72">
+                      {item.extractedText}
+                    </p>
+                  ) : null}
+                </div>
+              )) : report.evidenceAnalysis.map((item) => (
                 <div
                   key={item}
                   className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white"
@@ -374,6 +669,35 @@ export function ReportView({
                 </p>
               </div>
 
+              {investigation ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4">
+                    <p className="text-sm font-semibold text-white">Acciones urgentes</p>
+                    <div className="mt-3 space-y-2 text-sm text-sky-100/74">
+                      {(report.urgentActions ?? []).map((item) => (
+                        <p key={item}>{item}</p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4">
+                    <p className="text-sm font-semibold text-white">Documentos recomendados</p>
+                    <div className="mt-3 space-y-2 text-sm text-sky-100/74">
+                      {(report.recommendedDocuments ?? []).map((item) => (
+                        <p key={item}>{item}</p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 md:col-span-2">
+                    <p className="text-sm font-semibold text-white">Qué debe revisar un abogado</p>
+                    <div className="mt-3 space-y-2 text-sm text-sky-100/74">
+                      {(report.lawyerReviewItems ?? []).map((item) => (
+                        <p key={item}>{item}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
               <div className="space-y-3">
                 {report.nextSteps.map((item, index) => (
                   <div
@@ -395,6 +719,40 @@ export function ReportView({
               {report.disclaimer}
             </p>
           </SectionCard>
+
+          {investigation ? (
+            <SectionCard icon={<IconFile />} title="Investigación de plataforma">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Dominio</p>
+                  <p className="mt-2">{investigation.domain_result.domain ?? "No verificado"}</p>
+                </div>
+                <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Riesgo dominio</p>
+                  <p className="mt-2">{investigation.domain_result.riskLevel}</p>
+                </div>
+                <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Registrar</p>
+                  <p className="mt-2">{investigation.domain_result.registrar ?? "No verificado"}</p>
+                </div>
+                <div className="rounded-[1.35rem] border border-border/70 bg-background-elevated/60 p-4 text-white">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Privacidad WHOIS</p>
+                  <p className="mt-2">{investigation.domain_result.privacyProtection}</p>
+                </div>
+              </div>
+              <div className="mt-4 space-y-3">
+                <p className="text-sm leading-7 text-sky-100/74">
+                  {investigation.domain_result.riskExplanation}
+                </p>
+                <p className="text-sm leading-7 text-sky-100/74">
+                  {investigation.regulatory_result.summary}
+                </p>
+                <p className="text-sm leading-7 text-sky-100/74">
+                  {investigation.public_intel_result.summary}
+                </p>
+              </div>
+            </SectionCard>
+          ) : null}
           </div>
         </div>
       ) : (
