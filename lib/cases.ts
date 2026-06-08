@@ -26,7 +26,7 @@ export async function analyzeAndPersistCase(
 
   await admin
     .from("cases")
-    .update({ status: "Analizando" })
+    .update({ status: "Analizando", updated_at: new Date().toISOString() })
     .eq("id", caseId)
     .eq("user_id", userId);
 
@@ -51,7 +51,11 @@ export async function analyzeAndPersistCase(
 
   await admin
     .from("cases")
-    .update({ status: "Informe listo" })
+    .update({
+      ai_report: report,
+      status: "Informe listo",
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", caseId)
     .eq("user_id", userId);
 

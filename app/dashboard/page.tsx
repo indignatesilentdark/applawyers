@@ -5,6 +5,8 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { isAdminEmail } from "@/lib/admin";
 import { requirePortalUser } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const { admin, user } = await requirePortalUser();
 

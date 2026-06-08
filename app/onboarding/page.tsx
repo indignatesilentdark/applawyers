@@ -2,38 +2,15 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { OnboardingForm } from "@/components/onboarding-form";
 import { requirePortalUser } from "@/lib/auth";
+import { findCountryNameByIsoCode } from "@/lib/countries";
 
-const COUNTRY_BY_ISO_CODE: Record<string, string> = {
-  AR: "Argentina",
-  BO: "Bolivia",
-  BR: "Brasil",
-  CL: "Chile",
-  CO: "Colombia",
-  CR: "Costa Rica",
-  CU: "Cuba",
-  EC: "Ecuador",
-  ES: "Espana",
-  GT: "Guatemala",
-  HN: "Honduras",
-  HT: "Haiti",
-  MX: "Mexico",
-  NI: "Nicaragua",
-  PA: "Panama",
-  PE: "Peru",
-  PY: "Paraguay",
-  SV: "El Salvador",
-  US: "Estados Unidos",
-  UY: "Uruguay",
-  VE: "Venezuela",
-};
+export const dynamic = "force-dynamic";
 
 export default async function OnboardingPage() {
   const { admin, user } = await requirePortalUser();
   const headersList = await headers();
   const countryCode = headersList.get("x-vercel-ip-country")?.toUpperCase();
-  const initialCountry = countryCode
-    ? COUNTRY_BY_ISO_CODE[countryCode]
-    : undefined;
+  const initialCountry = findCountryNameByIsoCode(countryCode);
 
   const { data: profile } = await admin
     .from("profiles")

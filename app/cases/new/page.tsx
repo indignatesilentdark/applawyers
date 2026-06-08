@@ -3,6 +3,8 @@ import { CaseWizard } from "@/components/case-wizard";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { requirePortalUser } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewCasePage() {
   const { admin, user } = await requirePortalUser();
 

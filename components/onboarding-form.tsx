@@ -3,43 +3,12 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { COUNTRY_OPTIONS, findCountryOption } from "@/lib/countries";
 
 type OnboardingFormProps = {
   email: string;
   initialCountry?: string;
 };
-
-const COUNTRY_OPTIONS = [
-  { name: "Argentina", dialCode: "+54", flag: "🇦🇷" },
-  { name: "Bolivia", dialCode: "+591", flag: "🇧🇴" },
-  { name: "Brasil", dialCode: "+55", flag: "🇧🇷" },
-  { name: "Chile", dialCode: "+56", flag: "🇨🇱" },
-  { name: "Colombia", dialCode: "+57", flag: "🇨🇴" },
-  { name: "Costa Rica", dialCode: "+506", flag: "🇨🇷" },
-  { name: "Cuba", dialCode: "+53", flag: "🇨🇺" },
-  { name: "Ecuador", dialCode: "+593", flag: "🇪🇨" },
-  { name: "Espana", dialCode: "+34", flag: "🇪🇸" },
-  { name: "El Salvador", dialCode: "+503", flag: "🇸🇻" },
-  { name: "Estados Unidos", dialCode: "+1", flag: "🇺🇸" },
-  { name: "Guatemala", dialCode: "+502", flag: "🇬🇹" },
-  { name: "Haiti", dialCode: "+509", flag: "🇭🇹" },
-  { name: "Honduras", dialCode: "+504", flag: "🇭🇳" },
-  { name: "Mexico", dialCode: "+52", flag: "🇲🇽" },
-  { name: "Nicaragua", dialCode: "+505", flag: "🇳🇮" },
-  { name: "Panama", dialCode: "+507", flag: "🇵🇦" },
-  { name: "Paraguay", dialCode: "+595", flag: "🇵🇾" },
-  { name: "Peru", dialCode: "+51", flag: "🇵🇪" },
-  { name: "Uruguay", dialCode: "+598", flag: "🇺🇾" },
-  { name: "Venezuela", dialCode: "+58", flag: "🇻🇪" },
-];
-
-function findCountryOption(countryName?: string) {
-  if (!countryName) {
-    return null;
-  }
-
-  return COUNTRY_OPTIONS.find((option) => option.name === countryName) ?? null;
-}
 
 export function OnboardingForm({
   email,

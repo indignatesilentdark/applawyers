@@ -17,27 +17,56 @@ export async function POST(request: Request) {
     }
 
     const casePayload = JSON.parse(payload) as Record<string, string>;
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("lead_id")
+      .eq("id", user.id)
+      .maybeSingle();
 
     const { data: createdCase, error: caseError } = await admin
       .from("cases")
       .insert({
+        ai_report: null,
+        bank_name: casePayload.bankName,
         company_emails: casePayload.companyEmails,
         company_name: casePayload.companyName,
         contact_method: casePayload.contactMethod,
+        contacted_lawyers:
+          casePayload.contactedLawyers === "si"
+            ? true
+            : casePayload.contactedLawyers === "no"
+              ? false
+              : null,
         country: casePayload.country,
         currency: casePayload.currency,
         fraud_type: casePayload.fraudType,
         full_description: casePayload.fullDescription,
+        lead_id: profile?.lead_id ?? null,
         lost_amount: Number(casePayload.lostAmount),
+        payment_method: casePayload.paymentMethod,
         phones_or_users: casePayload.phonesOrUsers,
         platform_links: casePayload.platformLinks,
         promise: casePayload.promise,
+        recovery_offer_details: casePayload.recoveryOfferDetails,
+        recovery_offer_received:
+          casePayload.recoveryOfferReceived === "si"
+            ? true
+            : casePayload.recoveryOfferReceived === "no"
+              ? false
+              : null,
         relevant_urls: casePayload.relevantUrls,
+        reported_to_authorities:
+          casePayload.reportedToAuthorities === "si"
+            ? true
+            : casePayload.reportedToAuthorities === "no"
+              ? false
+              : null,
         start_date: casePayload.startDate,
         status: "Pendiente",
         steps_followed: casePayload.stepsFollowed,
         suspicion_moment: casePayload.suspicionMoment,
         transaction_hashes: casePayload.transactionHashes,
+        updated_at: new Date().toISOString(),
         user_id: user.id,
         wallets: casePayload.wallets,
       })

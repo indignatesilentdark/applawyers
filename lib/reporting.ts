@@ -81,6 +81,8 @@ Datos del caso:
 - País: ${caseRow.country ?? "No especificado"}
 - Fecha aproximada de inicio: ${caseRow.start_date ?? "No especificado"}
 - Monto aproximado perdido: ${caseRow.lost_amount ?? "No especificado"} ${caseRow.currency ?? ""}
+- Metodo de pago: ${caseRow.payment_method ?? "No especificado"}
+- Banco involucrado: ${caseRow.bank_name ?? "No especificado"}
 - Método de contacto: ${caseRow.contact_method ?? "No especificado"}
 - Promesa recibida: ${caseRow.promise ?? "No especificado"}
 - Pasos seguidos: ${caseRow.steps_followed ?? "No especificado"}
@@ -92,6 +94,28 @@ Datos del caso:
 - Correos de la empresa: ${caseRow.company_emails ?? "No especificado"}
 - Teléfonos o usuarios: ${caseRow.phones_or_users ?? "No especificado"}
 - URLs relevantes: ${caseRow.relevant_urls ?? "No especificado"}
+- Ya denuncio ante autoridades: ${
+    caseRow.reported_to_authorities === null
+      ? "No especificado"
+      : caseRow.reported_to_authorities
+        ? "Si"
+        : "No"
+  }
+- Ya contacto abogados: ${
+    caseRow.contacted_lawyers === null
+      ? "No especificado"
+      : caseRow.contacted_lawyers
+        ? "Si"
+        : "No"
+  }
+- Ofertas de recuperacion recibidas: ${
+    caseRow.recovery_offer_received === null
+      ? "No especificado"
+      : caseRow.recovery_offer_received
+        ? "Si"
+        : "No"
+  }
+- Detalles de recuperacion: ${caseRow.recovery_offer_details ?? "No especificado"}
 
 Evidencias:
 ${evidenceList}
@@ -151,6 +175,7 @@ export function buildFallbackReport(
     missingInformation: [
       "Comprobantes de pago o transferencias.",
       "Conversaciones completas con fechas visibles.",
+      "Metodo de pago y soportes de banco, wallet o hash cuando existan.",
       "Enlaces exactos de acceso a la plataforma o perfiles usados.",
     ],
     nextSteps: [

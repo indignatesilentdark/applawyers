@@ -5,6 +5,8 @@ import { isAdminEmail } from "@/lib/admin";
 import { requirePortalUser } from "@/lib/auth";
 import type { StructuredReport } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 type ReportPageProps = {
   params: Promise<{ id: string }>;
 };

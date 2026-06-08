@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { PortalUserRow, PrivateSessionRow } from "@/lib/types";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { hashSessionToken } from "@/lib/security";
 
 export const PORTAL_SESSION_COOKIE = "approvedlawyer_session";
@@ -12,6 +13,32 @@ export function getSessionExpiryDate() {
 }
 
 export async function getPortalSession() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+
+  if (authUser?.id && authUser.email) {
+    const admin = createAdminSupabaseClient();
+
+    await admin.from("portal_users").upsert({
+      created_at: authUser.created_at ?? new Date().toISOString(),
+      email: authUser.email,
+      id: authUser.id,
+    });
+
+    return {
+      admin,
+      session: null,
+      token: null,
+      user: {
+        created_at: authUser.created_at ?? new Date().toISOString(),
+        email: authUser.email,
+        id: authUser.id,
+      },
+    };
+  }
+
   const cookieStore = await cookies();
   const rawToken = cookieStore.get(PORTAL_SESSION_COOKIE)?.value;
 

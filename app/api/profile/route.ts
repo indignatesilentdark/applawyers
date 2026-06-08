@@ -18,13 +18,19 @@ export async function POST(request: Request) {
       );
     }
 
+    const fullName = [body.firstName.trim(), body.lastName.trim()]
+      .filter(Boolean)
+      .join(" ");
+
     const { error } = await admin.from("profiles").upsert({
-      country: body.country,
+      country: body.country.trim(),
       email: user.email,
-      first_name: body.firstName,
+      first_name: body.firstName.trim(),
+      full_name: fullName,
       id: user.id,
-      last_name: body.lastName,
-      phone: body.phone,
+      last_name: body.lastName.trim(),
+      phone: body.phone.trim(),
+      phone_country: body.phone.trim().split(/\s+/)[0] || null,
     });
 
     if (error) {

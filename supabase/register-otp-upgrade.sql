@@ -10,37 +10,6 @@ begin
 end;
 $$;
 
-create table if not exists public.portal_users (
-  id uuid primary key default gen_random_uuid(),
-  email text not null unique,
-  created_at timestamptz not null default timezone('utc', now())
-);
-
-create table if not exists public.access_codes (
-  id uuid primary key default gen_random_uuid(),
-  email text not null,
-  code_hash text not null,
-  expires_at timestamptz not null,
-  consumed_at timestamptz,
-  resend_email_id text,
-  created_at timestamptz not null default timezone('utc', now())
-);
-
-create index if not exists access_codes_email_created_idx
-  on public.access_codes (email, created_at desc);
-
-create table if not exists public.private_sessions (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references public.portal_users(id) on delete cascade,
-  token_hash text not null unique,
-  expires_at timestamptz not null,
-  created_at timestamptz not null default timezone('utc', now()),
-  last_seen_at timestamptz
-);
-
-create index if not exists private_sessions_user_id_idx
-  on public.private_sessions (user_id);
-
 create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
   first_name text,
@@ -74,52 +43,34 @@ create table if not exists public.lead_transfer_tokens (
 create index if not exists lead_transfer_tokens_lead_id_idx
   on public.lead_transfer_tokens (lead_id);
 
-create table if not exists public.profiles (
-  id uuid primary key references public.portal_users(id) on delete cascade,
-  email text,
-  first_name text,
-  last_name text,
-  full_name text,
-  country text,
-  phone text,
-  phone_country text,
-  lead_id uuid references public.leads(id) on delete set null,
-  source text,
-  created_at timestamptz not null default timezone('utc', now())
-);
+alter table public.profiles
+  add column if not exists full_name text,
+  add column if not exists phone_country text,
+  add column if not exists lead_id uuid references public.leads(id) on delete set null,
+  add column if not exists source text;
 
-create table if not exists public.cases (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references public.portal_users(id) on delete cascade,
-  lead_id uuid references public.leads(id) on delete set null,
-  company_name text,
-  fraud_type text,
-  country text,
-  start_date text,
-  lost_amount numeric,
-  currency text,
-  payment_method text,
-  bank_name text,
-  contact_method text,
-  promise text,
-  steps_followed text,
-  suspicion_moment text,
-  full_description text,
-  wallets text,
-  transaction_hashes text,
-  platform_links text,
-  company_emails text,
-  phones_or_users text,
-  relevant_urls text,
-  reported_to_authorities boolean,
-  contacted_lawyers boolean,
-  recovery_offer_received boolean,
-  recovery_offer_details text,
-  ai_report jsonb,
-  status text not null default 'Pendiente',
-  created_at timestamptz not null default timezone('utc', now()),
-  updated_at timestamptz not null default timezone('utc', now())
-);
+alter table public.cases
+  add column if not exists lead_id uuid references public.leads(id) on delete set null,
+  add column if not exists payment_method text,
+  add column if not exists bank_name text,
+  add column if not exists reported_to_authorities boolean,
+  add column if not exists contacted_lawyers boolean,
+  add column if not exists recovery_offer_received boolean,
+  add column if not exists recovery_offer_details text,
+  add column if not exists ai_report jsonb,
+  add column if not exists updated_at timestamptz not null default timezone('utc', now());
+
+update public.profiles
+set full_name = trim(concat(coalesce(first_name, ''), ' ', coalesce(last_name, '')))
+where full_name is null;
+
+update public.profiles
+set phone_country = split_part(coalesce(phone, ''), ' ', 1)
+where phone_country is null and phone is not null and phone <> '';
+
+update public.cases
+set updated_at = coalesce(updated_at, created_at, timezone('utc', now()))
+where updated_at is null;
 
 drop trigger if exists set_cases_updated_at on public.cases;
 create trigger set_cases_updated_at
@@ -127,31 +78,9 @@ before update on public.cases
 for each row
 execute function public.set_current_timestamp_updated_at();
 
-create table if not exists public.case_evidence (
-  id uuid primary key default gen_random_uuid(),
-  case_id uuid not null references public.cases(id) on delete cascade,
-  user_id uuid not null references public.portal_users(id) on delete cascade,
-  file_name text not null,
-  file_path text not null,
-  file_type text,
-  file_size bigint,
-  created_at timestamptz not null default timezone('utc', now())
-);
-
-create table if not exists public.case_reports (
-  id uuid primary key default gen_random_uuid(),
-  case_id uuid not null unique references public.cases(id) on delete cascade,
-  user_id uuid not null references public.portal_users(id) on delete cascade,
-  report_json jsonb not null,
-  report_text text,
-  created_at timestamptz not null default timezone('utc', now())
-);
-
-alter table public.portal_users enable row level security;
-alter table public.access_codes enable row level security;
-alter table public.private_sessions enable row level security;
 alter table public.leads enable row level security;
 alter table public.lead_transfer_tokens enable row level security;
+alter table public.portal_users enable row level security;
 alter table public.profiles enable row level security;
 alter table public.cases enable row level security;
 alter table public.case_evidence enable row level security;

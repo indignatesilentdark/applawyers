@@ -3,6 +3,8 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { requireAdminUser } from "@/lib/admin";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   const { admin, user } = await requireAdminUser();
 

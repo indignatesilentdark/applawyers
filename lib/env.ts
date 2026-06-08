@@ -1,5 +1,11 @@
 export const env = {
   adminEmails: process.env.ADMIN_EMAILS,
+  appUrl:
+    process.env.APP_URL ??
+    process.env.APP_BASE_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+    process.env.VERCEL_URL,
   appBaseUrl:
     process.env.APP_BASE_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
@@ -9,6 +15,7 @@ export const env = {
   emailFrom:
     process.env.EMAIL_FROM ??
     "ApproveLawyers <no-reply@approvelawyers.com>",
+  funnelUrl: process.env.FUNNEL_URL,
   humanReviewEmail: process.env.HUMAN_REVIEW_EMAIL,
   openAIKey: process.env.OPENAI_API_KEY,
   openAIModel: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
