@@ -199,7 +199,7 @@ export function RegisterForm({ lead }: RegisterFormProps) {
           Confirma tus datos y verifica tu acceso
         </h1>
         <p className="text-sm leading-7 text-muted-foreground">
-          Ya recibimos tu solicitud iniciall. Solo confirma tus datos, recibe
+          Ya recibimos tu solicitud inicial. Solo confirma tus datos, recibe
           un código de verificación y entra a tu panel privado.
         </p>
         <div className="rounded-[1.35rem] border border-border/80 bg-background-elevated/55 p-4 text-sm leading-6 text-muted-foreground">
