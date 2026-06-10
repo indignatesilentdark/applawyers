@@ -31,6 +31,16 @@ export default function RootLayout({
       className={`${displayFont.variable} ${monoFont.variable} h-full antialiased`}
     >
       <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-YWDTQ3JWDK"
+          strategy="afterInteractive"
+        />
+        <Script id="google-tag-manager" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-YWDTQ3JWDK');`}
+        </Script>
         <Script id="meta-pixel" strategy="afterInteractive">
           {`!function(f,b,e,v,n,t,s){
 if(f.fbq)return;n=f.fbq=function(){n.callMethod?
