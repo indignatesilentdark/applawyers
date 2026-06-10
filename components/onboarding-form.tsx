@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { COUNTRY_OPTIONS, findCountryOption } from "@/lib/countries";
@@ -100,6 +101,14 @@ export function OnboardingForm({
       onSubmit={handleSubmit}
     >
       <div className="mb-6 space-y-2">
+        <div className="flex justify-end">
+          <Link
+            href="/"
+            className="inline-flex items-center rounded-full border border-border/80 bg-background-elevated/65 px-4 py-2 text-xs font-medium text-muted-foreground transition hover:border-accent/50 hover:text-white"
+          >
+            Ya tengo cuenta
+          </Link>
+        </div>
         <p className="text-[0.72rem] uppercase tracking-[0.24em] text-muted-foreground">
           Onboarding seguro
         </p>
@@ -109,6 +118,10 @@ export function OnboardingForm({
         <p className="text-sm leading-6 text-muted-foreground">
           Necesitamos estos datos para asociar tu dossier privado al titular de
           la cuenta <span className="text-white">{email}</span>.
+        </p>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Si ya habias ingresado antes, puedes volver al acceso principal para
+          recibir tu codigo y entrar a tu panel privado.
         </p>
       </div>
 
