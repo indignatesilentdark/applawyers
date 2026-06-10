@@ -17,7 +17,7 @@ export const env = {
     process.env.EMAIL_FROM ??
     "ApproveLawyers <no-reply@approvelawyers.com>",
   etherscanApiKey: process.env.ETHERSCAN_API_KEY,
-  funnelUrl: process.env.FUNNEL_URL,
+  funnelUrl: process.env.FUNNEL_URL ?? "https://captions.approvelawyers.com",
   humanReviewEmail: process.env.HUMAN_REVIEW_EMAIL,
   leadTransferSecret: process.env.LEAD_TRANSFER_SECRET,
   openAIKey: process.env.OPENAI_API_KEY,

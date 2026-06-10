@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { hashLeadTransferToken } from "@/lib/security";
 import type { LeadRow, LeadTransferTokenRow } from "@/lib/types";
@@ -17,6 +18,22 @@ export type LeadTransferPayload = {
   source: string | null;
   timeframe: string | null;
   token: string;
+};
+
+type FunnelLeadTransferResponse = {
+  amount?: number | null;
+  country?: string | null;
+  email?: string;
+  evidence?: string | null;
+  first_name?: string | null;
+  full_name?: string | null;
+  last_name?: string | null;
+  lead_id?: string;
+  phone?: string | null;
+  phone_country?: string | null;
+  situation?: string | null;
+  source?: string | null;
+  timeframe?: string | null;
 };
 
 function buildLeadTransferPayload(
@@ -49,6 +66,55 @@ function buildLeadTransferPayload(
   };
 }
 
+function buildLeadTransferPayloadFromFunnel(
+  lead: FunnelLeadTransferResponse,
+  rawToken: string,
+): LeadTransferPayload {
+  return {
+    amount: lead.amount ?? null,
+    country: lead.country ?? null,
+    email: lead.email?.trim() ?? "",
+    evidence: lead.evidence ?? null,
+    firstName: lead.first_name?.trim() ?? "",
+    fullName:
+      lead.full_name?.trim() ||
+      [lead.first_name?.trim(), lead.last_name?.trim()].filter(Boolean).join(" "),
+    lastName: lead.last_name?.trim() ?? "",
+    leadId: lead.lead_id?.trim() ?? "",
+    phone: lead.phone ?? null,
+    phoneCountry: lead.phone_country ?? null,
+    situation: lead.situation ?? null,
+    source: lead.source ?? null,
+    timeframe: lead.timeframe ?? null,
+    token: rawToken,
+  };
+}
+
+async function fetchLeadTransferFromFunnel(leadId: string, token: string) {
+  const baseUrl = env.funnelUrl?.trim().replace(/\/$/, "");
+  if (!baseUrl) {
+    throw new Error("No pudimos validar tu solicitud.");
+  }
+
+  const url = new URL("/api/leads/transfer", baseUrl);
+  url.searchParams.set("lead_id", leadId);
+  url.searchParams.set("token", token);
+
+  const response = await fetch(url.toString(), {
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+  });
+  const data = (await response.json().catch(() => null)) as
+    | (FunnelLeadTransferResponse & { error?: string })
+    | null;
+
+  if (!response.ok || !data?.lead_id || !data?.email) {
+    throw new Error(data?.error ?? "No pudimos validar tu solicitud.");
+  }
+
+  return buildLeadTransferPayloadFromFunnel(data, token);
+}
+
 export async function getValidatedLeadTransfer(
   leadId: string,
   token: string,
@@ -60,6 +126,10 @@ export async function getValidatedLeadTransfer(
 
   if (!normalizedLeadId || !normalizedToken) {
     throw new Error("No pudimos validar tu solicitud.");
+  }
+
+  if (!env.leadTransferSecret) {
+    return fetchLeadTransferFromFunnel(normalizedLeadId, normalizedToken);
   }
 
   const [{ data: lead, error: leadError }, { data: transferToken, error: tokenError }] =
