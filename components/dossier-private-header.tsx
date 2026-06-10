@@ -4,7 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
-import { ChevronDown, Menu, ShieldCheck, UserRound, X } from "lucide-react";
+import {
+  ChevronDown,
+  Home,
+  LockKeyhole,
+  Menu,
+  ShieldCheck,
+  ShieldUser,
+  Sparkles,
+  UserRound,
+  X,
+} from "lucide-react";
 import { SignOutButton } from "@/components/sign-out-button";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +26,7 @@ type DossierPrivateHeaderProps = {
 
 type NavItem = {
   href: string;
+  icon: typeof Home;
   label: string;
 };
 
@@ -30,11 +41,13 @@ export function DossierPrivateHeader({
 
   const navigationItems = useMemo<NavItem[]>(
     () => [
-      { href: "/dashboard", label: "Inicio" },
-      { href: "/cases/new", label: "Iniciar análisis" },
-      { href: "/profile", label: "Perfil" },
-      { href: "/security", label: "Seguridad" },
-      ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
+      { href: "/dashboard", icon: Home, label: "Inicio" },
+      { href: "/cases/new", icon: Sparkles, label: "Iniciar análisis" },
+      { href: "/profile", icon: UserRound, label: "Perfil" },
+      { href: "/security", icon: LockKeyhole, label: "Seguridad" },
+      ...(isAdmin
+        ? [{ href: "/admin", icon: ShieldUser, label: "Admin" }]
+        : []),
     ],
     [isAdmin],
   );
@@ -110,6 +123,7 @@ export function DossierPrivateHeader({
 
                 <div className="mt-3 space-y-2">
                   {navigationItems.map((item) => {
+                    const Icon = item.icon;
                     const active =
                       pathname === item.href ||
                       (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -125,9 +139,9 @@ export function DossierPrivateHeader({
                             ? "surface-accent"
                             : "border border-transparent hover:border-border/70 hover:bg-background/30",
                         )}
-                      >
+                        >
                         <span>{item.label}</span>
-                        <UserRound className="size-4 text-muted-foreground" />
+                        <Icon className="size-4 text-muted-foreground" />
                       </Link>
                     );
                   })}
@@ -173,6 +187,7 @@ export function DossierPrivateHeader({
 
             <div className="mt-6 space-y-2">
               {navigationItems.map((item) => {
+                const Icon = item.icon;
                 const active =
                   pathname === item.href ||
                   (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -189,10 +204,10 @@ export function DossierPrivateHeader({
                         : "border border-transparent text-sky-100/78 hover:border-border/70 hover:bg-background/30",
                     )}
                   >
-                    <span>{item.label}</span>
-                    <span className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                      ir
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span>{item.label}</span>
+                    </div>
+                    <Icon className="size-5 text-muted-foreground" />
                   </Link>
                 );
               })}
