@@ -103,7 +103,7 @@ export function OnboardingForm({
       <div className="mb-6 space-y-2">
         <div className="flex justify-end">
           <Link
-            href="/"
+            href="/login"
             className="inline-flex items-center rounded-full border border-border/80 bg-background-elevated/65 px-4 py-2 text-xs font-medium text-muted-foreground transition hover:border-accent/50 hover:text-white"
           >
             Ya tengo cuenta

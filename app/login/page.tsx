@@ -3,11 +3,11 @@ import { AuthEntryScreen } from "@/components/auth-entry-screen";
 import { hasPortalAuthEnv } from "@/lib/env";
 import { getPortalSession } from "@/lib/portal-auth";
 
-type HomePageProps = {
+type LoginPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function Home({ searchParams }: HomePageProps) {
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = (await searchParams) ?? {};
   const session = hasPortalAuthEnv ? await getPortalSession() : null;
   const message = typeof params.message === "string" ? params.message : undefined;
