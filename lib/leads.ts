@@ -128,32 +128,36 @@ export async function getValidatedLeadTransfer(
     throw new Error("No pudimos validar tu solicitud.");
   }
 
-  if (!env.leadTransferSecret) {
-    return fetchLeadTransferFromFunnel(normalizedLeadId, normalizedToken);
-  }
-
   const [{ data: lead, error: leadError }, { data: transferToken, error: tokenError }] =
     await Promise.all([
       admin.from("leads").select("*").eq("id", normalizedLeadId).maybeSingle<LeadRow>(),
       admin
         .from("lead_transfer_tokens")
         .select("*")
-        .eq("token_hash", tokenHash)
+        .or(
+          env.leadTransferSecret
+            ? `token_hash.eq.${tokenHash},token.eq.${normalizedToken}`
+            : `token.eq.${normalizedToken}`,
+        )
         .eq("lead_id", normalizedLeadId)
         .maybeSingle<LeadTransferTokenRow>(),
     ]);
 
-  if (leadError || tokenError || !lead || !transferToken) {
-    throw new Error("No pudimos validar tu solicitud.");
+  if (!leadError && !tokenError && lead && transferToken) {
+    if (transferToken.used_at) {
+      throw new Error("Este enlace de registro ya fue utilizado.");
+    }
+
+    if (new Date(transferToken.expires_at).getTime() <= Date.now()) {
+      throw new Error("Este enlace de registro ya expiró.");
+    }
+
+    return buildLeadTransferPayload(lead, transferToken, normalizedToken);
   }
 
-  if (transferToken.used_at) {
-    throw new Error("Este enlace de registro ya fue utilizado.");
+  if (!env.leadTransferSecret) {
+    return fetchLeadTransferFromFunnel(normalizedLeadId, normalizedToken);
   }
 
-  if (new Date(transferToken.expires_at).getTime() <= Date.now()) {
-    throw new Error("Este enlace de registro ya expiró.");
-  }
-
-  return buildLeadTransferPayload(lead, transferToken, normalizedToken);
+  throw new Error("No pudimos validar tu solicitud.");
 }

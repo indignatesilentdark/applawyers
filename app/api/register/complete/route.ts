@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     const admin = createAdminSupabaseClient();
     const lead = await getValidatedLeadTransfer(body.leadId, body.token, admin);
     const tokenHash = env.leadTransferSecret ? hashLeadTransferToken(body.token) : null;
+    const normalizedToken = body.token.trim();
 
     if (lead.email.trim().toLowerCase() !== user.email.trim().toLowerCase()) {
       return NextResponse.json(
@@ -74,7 +75,11 @@ export async function POST(request: Request) {
             used_by_user_id: user.id,
           })
           .eq("lead_id", body.leadId.trim())
-          .match(tokenHash ? { token_hash: tokenHash } : {})
+          .or(
+            tokenHash
+              ? `token_hash.eq.${tokenHash},token.eq.${normalizedToken}`
+              : `token.eq.${normalizedToken}`,
+          )
           .is("used_at", null),
       ]);
 

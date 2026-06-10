@@ -34,6 +34,7 @@ export type LeadTransferTokenRow = {
   expires_at: string;
   lead_id: string;
   source: string | null;
+  token: string | null;
   token_hash: string;
   used_at: string | null;
   used_by_user_id: string | null;
