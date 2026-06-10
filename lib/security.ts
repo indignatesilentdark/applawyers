@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, createHmac, randomBytes } from "node:crypto";
 import { env } from "@/lib/env";
 
 function sha256(value: string) {
@@ -25,6 +25,13 @@ export function generateSessionToken() {
 
 export function hashSessionToken(token: string) {
   return sha256(token);
+}
+
+export function hashLeadTransferToken(token: string) {
+  const secret =
+    env.leadTransferSecret ?? env.supabaseServiceRoleKey ?? "fallback-lead-transfer-secret";
+
+  return createHmac("sha256", secret).update(token.trim()).digest("hex");
 }
 
 export function maskEmail(email: string) {

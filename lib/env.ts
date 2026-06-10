@@ -19,6 +19,7 @@ export const env = {
   etherscanApiKey: process.env.ETHERSCAN_API_KEY,
   funnelUrl: process.env.FUNNEL_URL,
   humanReviewEmail: process.env.HUMAN_REVIEW_EMAIL,
+  leadTransferSecret: process.env.LEAD_TRANSFER_SECRET,
   openAIKey: process.env.OPENAI_API_KEY,
   openAIModel: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
   polygonScanApiKey: process.env.POLYGONSCAN_API_KEY,

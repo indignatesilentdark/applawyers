@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getValidatedLeadTransfer } from "@/lib/leads";
 import { requirePortalUser } from "@/lib/portal-auth";
+import { hashLeadTransferToken } from "@/lib/security";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
     const { user } = await requirePortalUser();
     const admin = createAdminSupabaseClient();
     const lead = await getValidatedLeadTransfer(body.leadId, body.token, admin);
+    const tokenHash = hashLeadTransferToken(body.token);
 
     if (lead.email.trim().toLowerCase() !== user.email.trim().toLowerCase()) {
       return NextResponse.json(
@@ -70,7 +72,7 @@ export async function POST(request: Request) {
             used_at: new Date().toISOString(),
             used_by_user_id: user.id,
           })
-          .eq("token", body.token.trim())
+          .eq("token_hash", tokenHash)
           .eq("lead_id", body.leadId.trim()),
       ]);
 

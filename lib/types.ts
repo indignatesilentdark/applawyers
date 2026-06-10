@@ -30,9 +30,11 @@ export type LeadRow = {
 
 export type LeadTransferTokenRow = {
   created_at: string;
+  email: string | null;
   expires_at: string;
   lead_id: string;
-  token: string;
+  source: string | null;
+  token_hash: string;
   used_at: string | null;
   used_by_user_id: string | null;
 };

@@ -1,4 +1,5 @@
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { hashLeadTransferToken } from "@/lib/security";
 import type { LeadRow, LeadTransferTokenRow } from "@/lib/types";
 
 export type LeadTransferPayload = {
@@ -21,9 +22,12 @@ export type LeadTransferPayload = {
 function buildLeadTransferPayload(
   lead: LeadRow,
   transferToken: LeadTransferTokenRow,
+  rawToken: string,
 ): LeadTransferPayload {
-  const firstName = lead.first_name?.trim() ?? "";
-  const lastName = lead.last_name?.trim() ?? "";
+  const normalizedFullName = lead.full_name?.trim() ?? "";
+  const [derivedFirstName, ...derivedLastNameParts] = normalizedFullName.split(/\s+/).filter(Boolean);
+  const firstName = lead.first_name?.trim() || derivedFirstName || "";
+  const lastName = lead.last_name?.trim() || derivedLastNameParts.join(" ");
   const fullName =
     lead.full_name?.trim() || [firstName, lastName].filter(Boolean).join(" ");
 
@@ -39,9 +43,9 @@ function buildLeadTransferPayload(
     phone: lead.phone,
     phoneCountry: lead.phone_country,
     situation: lead.situation,
-    source: lead.source,
+    source: lead.source ?? transferToken.source,
     timeframe: lead.timeframe,
-    token: transferToken.token,
+    token: rawToken,
   };
 }
 
@@ -52,6 +56,7 @@ export async function getValidatedLeadTransfer(
 ) {
   const normalizedLeadId = leadId.trim();
   const normalizedToken = token.trim();
+  const tokenHash = hashLeadTransferToken(normalizedToken);
 
   if (!normalizedLeadId || !normalizedToken) {
     throw new Error("No pudimos validar tu solicitud.");
@@ -63,7 +68,7 @@ export async function getValidatedLeadTransfer(
       admin
         .from("lead_transfer_tokens")
         .select("*")
-        .eq("token", normalizedToken)
+        .eq("token_hash", tokenHash)
         .eq("lead_id", normalizedLeadId)
         .maybeSingle<LeadTransferTokenRow>(),
     ]);
@@ -80,5 +85,5 @@ export async function getValidatedLeadTransfer(
     throw new Error("Este enlace de registro ya expiró.");
   }
 
-  return buildLeadTransferPayload(lead, transferToken);
+  return buildLeadTransferPayload(lead, transferToken, normalizedToken);
 }
