@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
+import { CaseWorkspaceShell } from "@/components/case-workspace-shell";
 import { CaseWizard } from "@/components/case-wizard";
-import { DashboardShell } from "@/components/dashboard-shell";
 import { requirePortalUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -19,12 +19,8 @@ export default async function NewCasePage() {
   }
 
   return (
-    <DashboardShell
-      title="Crear nuevo caso"
-      eyebrow="Solicitud privada"
-      profile={profile}
-    >
+    <CaseWorkspaceShell profile={profile}>
       <CaseWizard />
-    </DashboardShell>
+    </CaseWorkspaceShell>
   );
 }
