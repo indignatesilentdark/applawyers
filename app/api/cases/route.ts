@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
 import { analyzeAndPersistCase } from "@/lib/cases";
 import { requirePortalUser } from "@/lib/portal-auth";
-import { slugifyFileName } from "@/lib/utils";
+import { normalizeSearchValue, slugifyFileName } from "@/lib/utils";
+
+function splitSignalValues(rawValue?: string) {
+  return `${rawValue ?? ""}`
+    .split(/[\n,;]+/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function extractDomains(values: string[]) {
+  return values
+    .flatMap((item) => item.match(/[a-z0-9.-]+\.[a-z]{2,}/gi) ?? [])
+    .map((item) => item.toLowerCase());
+}
 
 export async function POST(request: Request) {
   try {
@@ -75,6 +88,58 @@ export async function POST(request: Request) {
 
     if (caseError || !createdCase) {
       throw caseError ?? new Error("No pudimos crear el caso.");
+    }
+
+    const companySignals = [
+      {
+        case_id: createdCase.id,
+        signal_type: "company_name",
+        signal_value: casePayload.companyName,
+        normalized_value: normalizeSearchValue(casePayload.companyName ?? ""),
+        country: casePayload.country || null,
+        fraud_type: casePayload.fraudType || null,
+        user_id: user.id,
+      },
+      ...extractDomains(splitSignalValues(casePayload.platformLinks)).map((value) => ({
+        case_id: createdCase.id,
+        signal_type: "domain",
+        signal_value: value,
+        normalized_value: normalizeSearchValue(value),
+        country: casePayload.country || null,
+        fraud_type: casePayload.fraudType || null,
+        user_id: user.id,
+      })),
+      ...splitSignalValues(casePayload.companyEmails).map((value) => ({
+        case_id: createdCase.id,
+        signal_type: "email",
+        signal_value: value,
+        normalized_value: normalizeSearchValue(value),
+        country: casePayload.country || null,
+        fraud_type: casePayload.fraudType || null,
+        user_id: user.id,
+      })),
+      ...splitSignalValues(casePayload.phonesOrUsers).map((value) => ({
+        case_id: createdCase.id,
+        signal_type: "phone_or_handle",
+        signal_value: value,
+        normalized_value: normalizeSearchValue(value),
+        country: casePayload.country || null,
+        fraud_type: casePayload.fraudType || null,
+        user_id: user.id,
+      })),
+      ...splitSignalValues(casePayload.wallets).map((value) => ({
+        case_id: createdCase.id,
+        signal_type: "wallet",
+        signal_value: value,
+        normalized_value: normalizeSearchValue(value),
+        country: casePayload.country || null,
+        fraud_type: casePayload.fraudType || null,
+        user_id: user.id,
+      })),
+    ].filter((item) => item.signal_value && item.normalized_value);
+
+    if (companySignals.length) {
+      await admin.from("broker_signals").insert(companySignals);
     }
 
     await admin.from("investigation_results").upsert(

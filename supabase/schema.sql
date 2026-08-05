@@ -89,6 +89,32 @@ create table if not exists public.profiles (
   created_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.flagged_brokers (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  normalized_name text not null,
+  aliases jsonb not null default '[]'::jsonb,
+  domains jsonb not null default '[]'::jsonb,
+  emails jsonb not null default '[]'::jsonb,
+  phones jsonb not null default '[]'::jsonb,
+  country text,
+  risk_level text not null default 'alto',
+  status text not null default 'observacion',
+  source_type text not null default 'internal',
+  source_note text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists flagged_brokers_normalized_name_idx
+  on public.flagged_brokers (normalized_name);
+
+drop trigger if exists set_flagged_brokers_updated_at on public.flagged_brokers;
+create trigger set_flagged_brokers_updated_at
+before update on public.flagged_brokers
+for each row
+execute function public.set_current_timestamp_updated_at();
+
 create table if not exists public.cases (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.portal_users(id) on delete cascade,
@@ -127,6 +153,21 @@ create trigger set_cases_updated_at
 before update on public.cases
 for each row
 execute function public.set_current_timestamp_updated_at();
+
+create table if not exists public.broker_signals (
+  id uuid primary key default gen_random_uuid(),
+  case_id uuid not null references public.cases(id) on delete cascade,
+  user_id uuid not null references public.portal_users(id) on delete cascade,
+  signal_type text not null,
+  signal_value text not null,
+  normalized_value text not null,
+  country text,
+  fraud_type text,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists broker_signals_normalized_value_idx
+  on public.broker_signals (normalized_value);
 
 create table if not exists public.case_evidence (
   id uuid primary key default gen_random_uuid(),
@@ -177,10 +218,12 @@ alter table public.private_sessions enable row level security;
 alter table public.leads enable row level security;
 alter table public.lead_transfer_tokens enable row level security;
 alter table public.profiles enable row level security;
+alter table public.flagged_brokers enable row level security;
 alter table public.cases enable row level security;
 alter table public.case_evidence enable row level security;
 alter table public.case_reports enable row level security;
 alter table public.investigation_results enable row level security;
+alter table public.broker_signals enable row level security;
 
 drop policy if exists "portal_users_select_own" on public.portal_users;
 create policy "portal_users_select_own"
@@ -236,6 +279,20 @@ using (auth.uid() = user_id);
 drop policy if exists "cases_insert_own" on public.cases;
 create policy "cases_insert_own"
 on public.cases
+for insert
+to authenticated
+with check (auth.uid() = user_id);
+
+drop policy if exists "broker_signals_select_own" on public.broker_signals;
+create policy "broker_signals_select_own"
+on public.broker_signals
+for select
+to authenticated
+using (auth.uid() = user_id);
+
+drop policy if exists "broker_signals_insert_own" on public.broker_signals;
+create policy "broker_signals_insert_own"
+on public.broker_signals
 for insert
 to authenticated
 with check (auth.uid() = user_id);

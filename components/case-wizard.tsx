@@ -105,6 +105,16 @@ export function CaseWizard() {
     }
   });
   const [error, setError] = useState<string | null>(null);
+  const [brokerMatches, setBrokerMatches] = useState<
+    Array<{
+      id: string;
+      matchReason: string;
+      name: string;
+      riskLevel: string;
+      status: string;
+    }>
+  >([]);
+  const [isCheckingBroker, setIsCheckingBroker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState("Preparando el caso...");
 
@@ -115,10 +125,61 @@ export function CaseWizard() {
     );
   }, [draft]);
 
+  useEffect(() => {
+    const query = draft.companyName.trim();
+    if (query.length < 3) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        setIsCheckingBroker(true);
+        const response = await fetch(
+          `/api/brokers/search?q=${encodeURIComponent(query)}`,
+          { signal: controller.signal },
+        );
+        const payload = (await response.json()) as {
+          matches?: Array<{
+            id: string;
+            matchReason: string;
+            name: string;
+            riskLevel: string;
+            status: string;
+          }>;
+        };
+
+        if (!response.ok) {
+          throw new Error();
+        }
+
+        setBrokerMatches(payload.matches ?? []);
+      } catch {
+        if (!controller.signal.aborted) {
+          setBrokerMatches([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsCheckingBroker(false);
+        }
+      }
+    }, 320);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [draft.companyName]);
+
   function updateField<Key extends keyof DraftState>(
     key: Key,
     value: DraftState[Key],
   ) {
+    if (key === "companyName" && `${value}`.trim().length < 3) {
+      setBrokerMatches([]);
+      setIsCheckingBroker(false);
+    }
+
     setDraft((current) => ({
       ...current,
       [key]: value,
@@ -250,6 +311,32 @@ export function CaseWizard() {
               value={draft.companyName}
               onChange={(event) => updateField("companyName", event.target.value)}
             />
+            {isCheckingBroker ? (
+              <p className="mt-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                Revisando entidades reportadas...
+              </p>
+            ) : null}
+            {brokerMatches.length ? (
+              <div className="mt-3 rounded-[1.35rem] border border-amber-400/25 bg-amber-500/10 p-4">
+                <p className="text-sm font-semibold text-white">
+                  Detectamos coincidencias previas con entidades bajo observación
+                </p>
+                <div className="mt-3 space-y-3">
+                  {brokerMatches.map((match) => (
+                    <div
+                      key={match.id}
+                      className="rounded-[1rem] border border-white/8 bg-background/35 p-3"
+                    >
+                      <p className="text-sm font-semibold text-white">{match.name}</p>
+                      <p className="mt-1 text-sm text-sky-100/74">{match.matchReason}</p>
+                      <p className="mt-2 text-xs uppercase tracking-[0.16em] text-amber-200/90">
+                        Riesgo {match.riskLevel} · Estado {match.status}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
           <div>
             <label className="label-base">Tipo de fraude</label>
@@ -518,6 +605,15 @@ export function CaseWizard() {
                 <dt className="text-muted-foreground">Empresa</dt>
                 <dd className="text-white">{draft.companyName}</dd>
               </div>
+              {brokerMatches.length ? (
+                <div>
+                  <dt className="text-muted-foreground">Señales detectadas</dt>
+                  <dd className="text-white">
+                    {brokerMatches.length} coincidencia
+                    {brokerMatches.length === 1 ? "" : "s"} con entidades reportadas
+                  </dd>
+                </div>
+              ) : null}
               <div>
                 <dt className="text-muted-foreground">Tipo de fraude</dt>
                 <dd className="text-white">{draft.fraudType}</dd>
