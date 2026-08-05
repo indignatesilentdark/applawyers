@@ -11,6 +11,23 @@ import {
   normalizeEmail,
 } from "@/lib/security";
 
+function getRegisterErrorMessage(error: unknown) {
+  if (!(error instanceof Error)) {
+    return "No pudimos completar tu registro.";
+  }
+
+  const normalizedMessage = error.message.toLowerCase();
+  if (normalizedMessage.includes("password_hash")) {
+    return "La base de datos aun no esta lista para registro con contraseña. Ejecuta la migracion SQL de password_auth_register.";
+  }
+
+  if (normalizedMessage.includes("duplicate key") || normalizedMessage.includes("already")) {
+    return "Ese correo ya esta registrado. Entra desde /login.";
+  }
+
+  return error.message || "No pudimos completar tu registro.";
+}
+
 function getPasswordError(password: string, confirmPassword: string) {
   if (password.length < 8) {
     return "La contraseña debe tener al menos 8 caracteres.";
@@ -28,6 +45,8 @@ function getPasswordError(password: string, confirmPassword: string) {
 }
 
 export async function POST(request: Request) {
+  let createdUserId: string | null = null;
+
   try {
     const body = (await request.json()) as {
       country?: string;
@@ -91,6 +110,8 @@ export async function POST(request: Request) {
       throw userError ?? new Error("No pudimos crear la cuenta.");
     }
 
+    createdUserId = createdUser.id;
+
     const { error: profileError } = await admin.from("profiles").insert({
       id: createdUser.id,
       email,
@@ -131,8 +152,14 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     console.error(error);
+
+    if (createdUserId) {
+      const admin = createAdminSupabaseClient();
+      await admin.from("portal_users").delete().eq("id", createdUserId);
+    }
+
     return NextResponse.json(
-      { error: "No pudimos completar tu registro." },
+      { error: getRegisterErrorMessage(error) },
       { status: 500 },
     );
   }
