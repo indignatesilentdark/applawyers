@@ -1,14 +1,32 @@
 import Link from "next/link";
+import { AdminEntitiesPanel } from "@/components/admin-entities-panel";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { requireAdminUser } from "@/lib/admin";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+type FlaggedBrokerAdminRow = {
+  id: string;
+  name: string;
+  risk_level: string | null;
+  source_note: string | null;
+  source_type: string | null;
+  status: string | null;
+  updated_at: string;
+};
+
 export default async function AdminPage() {
   const { admin, user } = await requireAdminUser();
 
-  const [{ data: adminProfile }, { data: users }, { data: profiles }, { data: cases }] =
+  const [
+    { data: adminProfile },
+    { data: users },
+    { data: profiles },
+    { data: cases },
+    { data: entities },
+    { count: externalFeedCount },
+  ] =
     await Promise.all([
       admin
         .from("profiles")
@@ -26,6 +44,14 @@ export default async function AdminPage() {
         .from("cases")
         .select("id, user_id, company_name, fraud_type, country, lost_amount, currency, status, created_at")
         .order("created_at", { ascending: false }),
+      admin
+        .from("flagged_brokers")
+        .select("id, name, risk_level, source_note, source_type, status, updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(120),
+      admin
+        .from("external_broker_feeds")
+        .select("*", { count: "exact", head: true }),
     ]);
 
   const profileById = new Map((profiles ?? []).map((item) => [item.id, item]));
@@ -80,6 +106,19 @@ export default async function AdminPage() {
           </p>
         </div>
       </section>
+
+      <AdminEntitiesPanel
+        entities={(entities ?? []).map((entity: FlaggedBrokerAdminRow) => ({
+          id: entity.id,
+          name: entity.name,
+          riskLevel: entity.risk_level ?? "medio",
+          sourceNote: entity.source_note,
+          sourceType: entity.source_type ?? "internal",
+          status: entity.status ?? "observacion",
+          updatedAt: entity.updated_at,
+        }))}
+        externalFeedCount={externalFeedCount ?? 0}
+      />
 
       <section className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
