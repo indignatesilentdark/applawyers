@@ -13,6 +13,7 @@ $$;
 create table if not exists public.portal_users (
   id uuid primary key default gen_random_uuid(),
   email text not null unique,
+  password_hash text,
   created_at timestamptz not null default timezone('utc', now())
 );
 

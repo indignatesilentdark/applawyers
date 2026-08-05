@@ -9,6 +9,7 @@ export type PortalUserRow = {
   created_at: string;
   email: string;
   id: string;
+  password_hash?: string | null;
 };
 
 export type LeadRow = {

@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomBytes } from "node:crypto";
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { env } from "@/lib/env";
 
 function sha256(value: string) {
@@ -25,6 +25,32 @@ export function generateSessionToken() {
 
 export function hashSessionToken(token: string) {
   return sha256(token);
+}
+
+export function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const derivedKey = scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${derivedKey}`;
+}
+
+export function verifyPasswordHash(password: string, storedHash?: string | null) {
+  if (!storedHash) {
+    return false;
+  }
+
+  const [salt, expectedKey] = storedHash.split(":");
+  if (!salt || !expectedKey) {
+    return false;
+  }
+
+  const passwordBuffer = scryptSync(password, salt, 64);
+  const expectedBuffer = Buffer.from(expectedKey, "hex");
+
+  if (passwordBuffer.length !== expectedBuffer.length) {
+    return false;
+  }
+
+  return timingSafeEqual(passwordBuffer, expectedBuffer);
 }
 
 export function hashLeadTransferToken(token: string) {
