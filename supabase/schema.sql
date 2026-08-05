@@ -106,7 +106,7 @@ create table if not exists public.flagged_brokers (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
-create index if not exists flagged_brokers_normalized_name_idx
+create unique index if not exists flagged_brokers_normalized_name_idx
   on public.flagged_brokers (normalized_name);
 
 drop trigger if exists set_flagged_brokers_updated_at on public.flagged_brokers;
@@ -169,6 +169,28 @@ create table if not exists public.broker_signals (
 create index if not exists broker_signals_normalized_value_idx
   on public.broker_signals (normalized_value);
 
+create table if not exists public.external_broker_feeds (
+  id uuid primary key default gen_random_uuid(),
+  source_name text not null,
+  source_type text not null,
+  source_url text not null unique,
+  title text not null,
+  broker_name text not null,
+  normalized_broker_name text not null,
+  risk_level text not null default 'medio',
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists external_broker_feeds_broker_idx
+  on public.external_broker_feeds (normalized_broker_name);
+
+drop trigger if exists set_external_broker_feeds_updated_at on public.external_broker_feeds;
+create trigger set_external_broker_feeds_updated_at
+before update on public.external_broker_feeds
+for each row
+execute function public.set_current_timestamp_updated_at();
+
 create table if not exists public.case_evidence (
   id uuid primary key default gen_random_uuid(),
   case_id uuid not null references public.cases(id) on delete cascade,
@@ -224,6 +246,7 @@ alter table public.case_evidence enable row level security;
 alter table public.case_reports enable row level security;
 alter table public.investigation_results enable row level security;
 alter table public.broker_signals enable row level security;
+alter table public.external_broker_feeds enable row level security;
 
 drop policy if exists "portal_users_select_own" on public.portal_users;
 create policy "portal_users_select_own"

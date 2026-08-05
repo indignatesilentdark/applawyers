@@ -13,6 +13,7 @@ export const env = {
     process.env.VERCEL_URL,
   authOtpSecret: process.env.AUTH_OTP_SECRET,
   bscScanApiKey: process.env.BSCSCAN_API_KEY,
+  cronSecret: process.env.CRON_SECRET,
   emailFrom:
     process.env.EMAIL_FROM ??
     "ApproveLawyers <no-reply@approvelawyers.com>",
@@ -32,6 +33,7 @@ export const env = {
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
   whoisXmlApiKey: process.env.WHOISXML_API_KEY,
+  wikiFxFeedUrl: process.env.WIKIFX_FEED_URL ?? "https://www.wikifx.com/es/",
 };
 
 export const hasPublicSupabaseEnv = Boolean(
