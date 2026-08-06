@@ -4,24 +4,24 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { COUNTRY_OPTIONS, findCountryOption } from "@/lib/countries";
+import { COUNTRY_OPTIONS, type CountryOption, findCountryOption } from "@/lib/countries";
 
 type RegisterAccountFormProps = {
   initialCountry?: string;
 };
 
-function buildPhoneValue(rawValue: string, dialCode?: string) {
+function buildPhoneValue(rawValue: string, countryOption?: CountryOption | null) {
   const digitsOnly = rawValue.replace(/\D/g, "");
-  const dialDigits = (dialCode ?? "").replace(/\D/g, "");
+  const dialDigits = (countryOption?.dialCode ?? "").replace(/\D/g, "");
   const hasDialPrefix = Boolean(dialDigits) && digitsOnly.startsWith(dialDigits);
   const localDigits = hasDialPrefix
     ? digitsOnly.slice(dialDigits.length)
     : digitsOnly;
-  const maxLocalDigits = Math.max(4, 15 - dialDigits.length);
+  const maxLocalDigits = countryOption?.phoneDigits ?? Math.max(4, 15 - dialDigits.length);
   const trimmedLocalDigits = localDigits.slice(0, maxLocalDigits);
 
-  if (dialCode) {
-    return `${dialCode} ${trimmedLocalDigits}`.trim();
+  if (countryOption?.dialCode) {
+    return `${countryOption.dialCode} ${trimmedLocalDigits}`.trim();
   }
 
   return trimmedLocalDigits ? `+${trimmedLocalDigits.slice(0, 15)}` : "";
@@ -62,7 +62,7 @@ export function RegisterAccountForm({ initialCountry }: RegisterAccountFormProps
         phone:
           shouldReplaceDialCode && option
             ? `${option.dialCode} `
-            : buildPhoneValue(current.phone, option?.dialCode),
+            : buildPhoneValue(current.phone, option),
       };
     });
   }
@@ -232,11 +232,11 @@ export function RegisterAccountForm({ initialCountry }: RegisterAccountFormProps
                 ...current,
                 phone: buildPhoneValue(
                   event.target.value,
-                  selectedCountry?.dialCode,
+                  selectedCountry,
                 ),
               }))
             }
-            maxLength={selectedCountry ? selectedCountry.dialCode.length + 16 : 16}
+            maxLength={selectedCountry ? selectedCountry.dialCode.length + selectedCountry.phoneDigits + 1 : 16}
           />
           <p className="mt-2 text-xs leading-6 text-muted-foreground">
             Solo se permiten numeros. El prefijo del pais se mantiene automaticamente.
