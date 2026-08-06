@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Building2, Search, Users2 } from "lucide-react";
+import Link from "next/link";
+import { Building2, LayoutDashboard, Search, Users2 } from "lucide-react";
 import { AdminEntitiesPanel } from "@/components/admin-entities-panel";
-import { formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 type AdminEntityItem = {
   id: string;
@@ -24,24 +25,41 @@ type AdminUserItem = {
   phone: string | null;
 };
 
+type AdminCaseItem = {
+  id: string;
+  companyName: string | null;
+  fraudType: string | null;
+  country: string | null;
+  lostAmount: number | null;
+  currency: string | null;
+  status: string;
+  createdAt: string;
+  ownerLabel: string;
+};
+
 type AdminRegistryPanelProps = {
   entities: AdminEntityItem[];
   externalFeedCount: number;
   users: AdminUserItem[];
+  cases: AdminCaseItem[];
+  totalCases: number;
 };
 
 const tabs = [
+  { id: "overview", label: "Admin", icon: LayoutDashboard },
+  { id: "users", label: "Usuarios", icon: Users2 },
   { id: "entities", label: "Entidades", icon: Building2 },
-  { id: "users", label: "Usuarios registrados", icon: Users2 },
 ] as const;
 
 export function AdminRegistryPanel({
   entities,
   externalFeedCount,
   users,
+  cases,
+  totalCases,
 }: AdminRegistryPanelProps) {
   const [activeTab, setActiveTab] =
-    useState<(typeof tabs)[number]["id"]>("entities");
+    useState<(typeof tabs)[number]["id"]>("overview");
   const [query, setQuery] = useState("");
 
   const filteredUsers = useMemo(() => {
@@ -65,10 +83,10 @@ export function AdminRegistryPanel({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
-              Submenú operativo
+              Admin
             </p>
             <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
-              Explora entidades o revisa usuarios registrados
+              Usuarios y entidades
             </h2>
           </div>
 
@@ -76,7 +94,12 @@ export function AdminRegistryPanel({
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
-              const count = tab.id === "entities" ? entities.length : users.length;
+              const count =
+                tab.id === "entities"
+                  ? entities.length
+                  : tab.id === "users"
+                    ? users.length
+                    : totalCases;
 
               return (
                 <button
@@ -101,7 +124,73 @@ export function AdminRegistryPanel({
         </div>
       </div>
 
-      {activeTab === "entities" ? (
+      {activeTab === "overview" ? (
+        <section className="glass-panel rounded-[1.9rem] p-5 lg:p-6">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
+                Admin
+              </p>
+              <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
+                Casos recientes
+              </h2>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {totalCases} registro{totalCases === 1 ? "" : "s"}
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {cases.length ? (
+              cases.map((item) => (
+                <div
+                  key={item.id}
+                  className="surface-contrast rounded-[1.35rem] p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-lg font-semibold text-white">
+                        {item.companyName || "Caso sin empresa"}
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {item.fraudType || "Tipo no especificado"} ·{" "}
+                        {item.country || "País no especificado"}
+                      </p>
+                    </div>
+                    <div className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 text-xs font-medium text-white">
+                      {item.status}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-sky-300/10 bg-sky-300/5 px-4 py-3 text-sm text-white/90">
+                      Cliente: {item.ownerLabel}
+                    </div>
+                    <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
+                      Fecha: {formatDate(item.createdAt)}
+                    </div>
+                    <div className="rounded-2xl border border-accent/15 bg-accent/5 px-4 py-3 text-sm text-white/90">
+                      Monto: {formatCurrency(item.lostAmount, item.currency ?? "USD")}
+                    </div>
+                    <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
+                      <Link
+                        href={`/cases/${item.id}/report`}
+                        className="font-medium text-accent"
+                      >
+                        Abrir dossier
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-[1.35rem] border border-border/70 bg-background/25 px-5 py-6 text-sm text-muted-foreground">
+                Aún no hay casos creados.
+              </div>
+            )}
+          </div>
+        </section>
+      ) : activeTab === "entities" ? (
         <AdminEntitiesPanel
           entities={entities}
           externalFeedCount={externalFeedCount}

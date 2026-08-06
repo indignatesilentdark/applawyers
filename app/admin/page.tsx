@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { AdminRegistryPanel } from "@/components/admin-registry-panel";
 import { CaseWorkspaceShell } from "@/components/case-workspace-shell";
 import { requireAdminUser } from "@/lib/admin";
-import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -182,81 +180,28 @@ export default async function AdminPage() {
             phone: profile?.phone ?? null,
           };
         })}
+        cases={latestCases.map((item) => {
+          const owner = profileById.get(item.user_id);
+          const ownerUser = userById.get(item.user_id);
+          const ownerName = [owner?.first_name, owner?.last_name]
+            .filter(Boolean)
+            .join(" ");
+
+          return {
+            id: item.id,
+            companyName: item.company_name,
+            fraudType: item.fraud_type,
+            country: item.country,
+            lostAmount: item.lost_amount,
+            currency: item.currency ?? "USD",
+            status: item.status,
+            createdAt: item.created_at,
+            ownerLabel: ownerName || ownerUser?.email || item.user_id,
+          };
+        })}
+        totalCases={totalCases}
       />
 
-      <section className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
-              Casos recientes
-            </p>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
-              Flujo más reciente
-            </h2>
-          </div>
-          <span className="text-sm text-muted-foreground">
-            {totalCases} registro{totalCases === 1 ? "" : "s"}
-          </span>
-        </div>
-
-        <div className="space-y-3">
-          {latestCases.length ? (
-            latestCases.map((item) => {
-              const owner = profileById.get(item.user_id);
-              const ownerUser = userById.get(item.user_id);
-              const ownerName = [owner?.first_name, owner?.last_name]
-                .filter(Boolean)
-                .join(" ");
-
-              return (
-                <div
-                  key={item.id}
-                  className="surface-contrast rounded-[1.35rem] p-4"
-                >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="text-lg font-semibold text-white">
-                        {item.company_name || "Caso sin empresa"}
-                      </p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {item.fraud_type || "Tipo no especificado"} ·{" "}
-                        {item.country || "País no especificado"}
-                      </p>
-                    </div>
-                    <div className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 text-xs font-medium text-white">
-                      {item.status}
-                    </div>
-                  </div>
-
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-sky-300/10 bg-sky-300/5 px-4 py-3 text-sm text-white/90">
-                      Cliente: {ownerName || ownerUser?.email || item.user_id}
-                    </div>
-                    <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
-                      Fecha: {formatDate(item.created_at)}
-                    </div>
-                    <div className="rounded-2xl border border-accent/15 bg-accent/5 px-4 py-3 text-sm text-white/90">
-                      Monto: {formatCurrency(item.lost_amount, item.currency ?? "USD")}
-                    </div>
-                    <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
-                      <Link
-                        href={`/cases/${item.id}/report`}
-                        className="font-medium text-accent"
-                      >
-                        Abrir dossier
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Aún no hay casos creados.
-            </p>
-          )}
-        </div>
-      </section>
     </CaseWorkspaceShell>
   );
 }
