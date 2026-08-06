@@ -10,6 +10,23 @@ type RegisterAccountFormProps = {
   initialCountry?: string;
 };
 
+function buildPhoneValue(rawValue: string, dialCode?: string) {
+  const digitsOnly = rawValue.replace(/\D/g, "");
+  const dialDigits = (dialCode ?? "").replace(/\D/g, "");
+  const hasDialPrefix = Boolean(dialDigits) && digitsOnly.startsWith(dialDigits);
+  const localDigits = hasDialPrefix
+    ? digitsOnly.slice(dialDigits.length)
+    : digitsOnly;
+  const maxLocalDigits = Math.max(4, 15 - dialDigits.length);
+  const trimmedLocalDigits = localDigits.slice(0, maxLocalDigits);
+
+  if (dialCode) {
+    return `${dialCode} ${trimmedLocalDigits}`.trim();
+  }
+
+  return trimmedLocalDigits ? `+${trimmedLocalDigits.slice(0, 15)}` : "";
+}
+
 export function RegisterAccountForm({ initialCountry }: RegisterAccountFormProps) {
   const router = useRouter();
   const initialCountryOption = findCountryOption(initialCountry);
@@ -42,7 +59,10 @@ export function RegisterAccountForm({ initialCountry }: RegisterAccountFormProps
       return {
         ...current,
         country: nextCountry,
-        phone: shouldReplaceDialCode && option ? `${option.dialCode} ` : current.phone,
+        phone:
+          shouldReplaceDialCode && option
+            ? `${option.dialCode} `
+            : buildPhoneValue(current.phone, option?.dialCode),
       };
     });
   }
@@ -165,9 +185,22 @@ export function RegisterAccountForm({ initialCountry }: RegisterAccountFormProps
         </div>
 
         <div>
-          <label className="label-base" htmlFor="register-country">
-            País
-          </label>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+            <label className="label-base !mb-0" htmlFor="register-country">
+              País
+            </label>
+            {selectedCountry ? (
+              <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent">
+                <span>{selectedCountry.flag}</span>
+                <span>
+                  {selectedCountry.name}
+                  {initialCountryOption?.name === selectedCountry.name
+                    ? " detectado por IP"
+                    : ""}
+                </span>
+              </div>
+            ) : null}
+          </div>
           <select
             id="register-country"
             className="field-base"
@@ -189,13 +222,25 @@ export function RegisterAccountForm({ initialCountry }: RegisterAccountFormProps
           </label>
           <input
             id="register-phone"
+            type="tel"
+            inputMode="numeric"
             className="field-base"
             placeholder={`${selectedCountry?.dialCode ?? "+00"} 300 000 0000`}
             value={formState.phone}
             onChange={(event) =>
-              setFormState((current) => ({ ...current, phone: event.target.value }))
+              setFormState((current) => ({
+                ...current,
+                phone: buildPhoneValue(
+                  event.target.value,
+                  selectedCountry?.dialCode,
+                ),
+              }))
             }
+            maxLength={selectedCountry ? selectedCountry.dialCode.length + 16 : 16}
           />
+          <p className="mt-2 text-xs leading-6 text-muted-foreground">
+            Solo se permiten numeros. El prefijo del pais se mantiene automaticamente.
+          </p>
         </div>
       </div>
 
