@@ -8,24 +8,29 @@ import { cn } from "@/lib/utils";
 type CaseWorkspaceShellProps = {
   children: React.ReactNode;
   profile?: Pick<ProfileRow, "email" | "first_name" | "last_name"> | null;
+  title?: string;
+  eyebrow?: string;
+  activeItem?: string;
 };
 
 const navigationItems = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
-  { href: "/cases/new", icon: PlusCircle, label: "Nuevo caso", active: true },
+  { href: "/cases/new", icon: PlusCircle, label: "Nuevo caso" },
   { href: "/dashboard", icon: FolderOpen, label: "Casos" },
-  { href: "/admin", icon: Users, label: "Clientes" },
-  { href: "/admin", icon: ClipboardList, label: "Actividades" },
+  { href: "/admin", icon: Users, label: "Admin" },
+  { href: "/admin", icon: ClipboardList, label: "Actividad" },
   { href: "/admin", icon: MessageCircleMore, label: "Mensajes", badge: "3" },
-  { href: "/admin", icon: Files, label: "Reportes" },
-  { href: "/admin", icon: CalendarDays, label: "Calendario" },
-  { href: "/admin", icon: Files, label: "Documentos" },
+  { href: "/admin", icon: Files, label: "Entidades" },
+  { href: "/admin", icon: CalendarDays, label: "Agenda" },
   { href: "/security", icon: Settings, label: "Configuración" },
 ];
 
 export function CaseWorkspaceShell({
   children,
   profile,
+  title = "Nuevo caso",
+  eyebrow = "Solicitud privada",
+  activeItem = "Nuevo caso",
 }: CaseWorkspaceShellProps) {
   const fullName = [profile?.first_name, profile?.last_name]
     .filter(Boolean)
@@ -69,7 +74,7 @@ export function CaseWorkspaceShell({
                   href={item.href}
                   className={cn(
                     "flex items-center justify-between rounded-2xl px-4 py-3 text-sm text-sky-100/74",
-                    item.active
+                    item.label === activeItem
                       ? "surface-accent text-white"
                       : "hover:bg-white/5 hover:text-white",
                   )}
@@ -129,10 +134,10 @@ export function CaseWorkspaceShell({
                 </button>
                 <div>
                   <p className="text-[0.78rem] uppercase tracking-[0.24em] text-muted-foreground">
-                    Solicitud privada
+                    {eyebrow}
                   </p>
                   <h1 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-white">
-                    Nuevo caso
+                    {title}
                   </h1>
                 </div>
               </div>
