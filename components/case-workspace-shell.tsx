@@ -11,18 +11,19 @@ type CaseWorkspaceShellProps = {
   title?: string;
   eyebrow?: string;
   activeItem?: string;
+  isAdmin?: boolean;
 };
 
 const navigationItems = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
   { href: "/cases/new", icon: PlusCircle, label: "Nuevo caso" },
   { href: "/dashboard", icon: FolderOpen, label: "Casos" },
-  { href: "/admin", icon: Users, label: "Admin" },
-  { href: "/admin", icon: ClipboardList, label: "Actividad" },
-  { href: "/admin", icon: MessageCircleMore, label: "Mensajes", badge: "3" },
-  { href: "/admin", icon: Files, label: "Entidades" },
-  { href: "/admin", icon: CalendarDays, label: "Agenda" },
   { href: "/security", icon: Settings, label: "Configuración" },
+  { href: "/admin", icon: Users, label: "Admin", adminOnly: true },
+  { href: "/admin", icon: ClipboardList, label: "Actividad", adminOnly: true },
+  { href: "/admin", icon: MessageCircleMore, label: "Mensajes", badge: "3", adminOnly: true },
+  { href: "/admin", icon: Files, label: "Entidades", adminOnly: true },
+  { href: "/admin", icon: CalendarDays, label: "Agenda", adminOnly: true },
 ];
 
 export function CaseWorkspaceShell({
@@ -31,12 +32,16 @@ export function CaseWorkspaceShell({
   title = "Nuevo caso",
   eyebrow = "Solicitud privada",
   activeItem = "Nuevo caso",
+  isAdmin = false,
 }: CaseWorkspaceShellProps) {
   const fullName = [profile?.first_name, profile?.last_name]
     .filter(Boolean)
     .join(" ");
   const userName = fullName || "Usuario privado";
   const avatarLabel = userName.slice(0, 1).toUpperCase();
+  const visibleNavigationItems = navigationItems.filter(
+    (item) => !item.adminOnly || isAdmin,
+  );
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#091322_0%,#06101d_100%)] text-white">
@@ -65,7 +70,7 @@ export function CaseWorkspaceShell({
           </div>
 
           <nav className="flex-1 space-y-1 px-4 py-6">
-            {navigationItems.map((item) => {
+            {visibleNavigationItems.map((item) => {
               const Icon = item.icon;
 
               return (
