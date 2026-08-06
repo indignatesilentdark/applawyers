@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AdminEntitiesPanel } from "@/components/admin-entities-panel";
+import { AdminRegistryPanel } from "@/components/admin-registry-panel";
 import { CaseWorkspaceShell } from "@/components/case-workspace-shell";
 import { requireAdminUser } from "@/lib/admin";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -62,7 +62,6 @@ export default async function AdminPage() {
   const humanReview =
     cases?.filter((item) => item.status === "Revisión humana solicitada").length ??
     0;
-  const latestUsers = users?.slice(0, 4) ?? [];
   const latestCases = cases?.slice(0, 4) ?? [];
 
   return (
@@ -157,7 +156,7 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <AdminEntitiesPanel
+      <AdminRegistryPanel
         entities={(entities ?? []).map((entity: FlaggedBrokerAdminRow) => ({
           id: entity.id,
           name: entity.name,
@@ -168,140 +167,94 @@ export default async function AdminPage() {
           updatedAt: entity.updated_at,
         }))}
         externalFeedCount={externalFeedCount ?? 0}
+        users={(users ?? []).map((item) => {
+          const profile = profileById.get(item.id);
+          const fullName = [profile?.first_name, profile?.last_name]
+            .filter(Boolean)
+            .join(" ");
+
+          return {
+            id: item.id,
+            email: item.email,
+            createdAt: item.created_at,
+            fullName,
+            country: profile?.country ?? null,
+            phone: profile?.phone ?? null,
+          };
+        })}
       />
 
-      <section className="grid gap-5 xl:grid-cols-2">
-        <div className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
-                Usuarios registrados
-              </p>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
-                Últimos accesos creados
-              </h2>
-            </div>
-            <span className="text-sm text-muted-foreground">
-              {totalUsers} registro{totalUsers === 1 ? "" : "s"}
-            </span>
+      <section className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
+              Casos recientes
+            </p>
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
+              Flujo más reciente
+            </h2>
           </div>
-
-          <div className="space-y-3">
-            {latestUsers.length ? (
-              latestUsers.map((item) => {
-                const profile = profileById.get(item.id);
-                const fullName = [profile?.first_name, profile?.last_name]
-                  .filter(Boolean)
-                  .join(" ");
-
-                return (
-                  <div
-                    key={item.id}
-                    className="surface-contrast rounded-[1.35rem] p-4"
-                  >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-lg font-semibold text-white">
-                          {fullName || item.email}
-                        </p>
-                        <p className="text-sm text-muted-foreground">{item.email}</p>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Alta: {formatDate(item.created_at)}
-                      </div>
-                    </div>
-
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-sky-300/10 bg-sky-300/5 px-4 py-3 text-sm text-white/90">
-                        País: {profile?.country || "No registrado"}
-                      </div>
-                      <div className="rounded-2xl border border-accent/15 bg-accent/5 px-4 py-3 text-sm text-white/90">
-                        Teléfono: {profile?.phone || "No registrado"}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Aún no hay usuarios registrados.
-              </p>
-            )}
-          </div>
+          <span className="text-sm text-muted-foreground">
+            {totalCases} registro{totalCases === 1 ? "" : "s"}
+          </span>
         </div>
 
-        <div className="glass-panel rounded-[1.75rem] p-5 lg:p-6">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
-                Casos recientes
-              </p>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
-                Flujo más reciente
-              </h2>
-            </div>
-            <span className="text-sm text-muted-foreground">
-              {totalCases} registro{totalCases === 1 ? "" : "s"}
-            </span>
-          </div>
+        <div className="space-y-3">
+          {latestCases.length ? (
+            latestCases.map((item) => {
+              const owner = profileById.get(item.user_id);
+              const ownerUser = userById.get(item.user_id);
+              const ownerName = [owner?.first_name, owner?.last_name]
+                .filter(Boolean)
+                .join(" ");
 
-          <div className="space-y-3">
-            {latestCases.length ? (
-              latestCases.map((item) => {
-                const owner = profileById.get(item.user_id);
-                const ownerUser = userById.get(item.user_id);
-                const ownerName = [owner?.first_name, owner?.last_name]
-                  .filter(Boolean)
-                  .join(" ");
-
-                return (
-                  <div
-                    key={item.id}
-                    className="surface-contrast rounded-[1.35rem] p-4"
-                  >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <p className="text-lg font-semibold text-white">
-                          {item.company_name || "Caso sin empresa"}
-                        </p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          {item.fraud_type || "Tipo no especificado"} ·{" "}
-                          {item.country || "País no especificado"}
-                        </p>
-                      </div>
-                      <div className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 text-xs font-medium text-white">
-                        {item.status}
-                      </div>
+              return (
+                <div
+                  key={item.id}
+                  className="surface-contrast rounded-[1.35rem] p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-lg font-semibold text-white">
+                        {item.company_name || "Caso sin empresa"}
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {item.fraud_type || "Tipo no especificado"} ·{" "}
+                        {item.country || "País no especificado"}
+                      </p>
                     </div>
-
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-sky-300/10 bg-sky-300/5 px-4 py-3 text-sm text-white/90">
-                        Cliente: {ownerName || ownerUser?.email || item.user_id}
-                      </div>
-                      <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
-                        Fecha: {formatDate(item.created_at)}
-                      </div>
-                      <div className="rounded-2xl border border-accent/15 bg-accent/5 px-4 py-3 text-sm text-white/90">
-                        Monto: {formatCurrency(item.lost_amount, item.currency ?? "USD")}
-                      </div>
-                      <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
-                        <Link
-                          href={`/cases/${item.id}/report`}
-                          className="font-medium text-accent"
-                        >
-                          Abrir dossier
-                        </Link>
-                      </div>
+                    <div className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 text-xs font-medium text-white">
+                      {item.status}
                     </div>
                   </div>
-                );
-              })
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Aún no hay casos creados.
-              </p>
-            )}
-          </div>
+
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-sky-300/10 bg-sky-300/5 px-4 py-3 text-sm text-white/90">
+                      Cliente: {ownerName || ownerUser?.email || item.user_id}
+                    </div>
+                    <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
+                      Fecha: {formatDate(item.created_at)}
+                    </div>
+                    <div className="rounded-2xl border border-accent/15 bg-accent/5 px-4 py-3 text-sm text-white/90">
+                      Monto: {formatCurrency(item.lost_amount, item.currency ?? "USD")}
+                    </div>
+                    <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
+                      <Link
+                        href={`/cases/${item.id}/report`}
+                        className="font-medium text-accent"
+                      >
+                        Abrir dossier
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Aún no hay casos creados.
+            </p>
+          )}
         </div>
       </section>
     </CaseWorkspaceShell>
