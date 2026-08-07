@@ -53,7 +53,7 @@ export function CaseBenefitsGrid() {
         ¿Qué recibirás?
       </h2>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-6 grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
         {benefits.map((benefit, index) => {
           const Icon = benefit.icon;
 

@@ -48,8 +48,8 @@ export default async function DashboardPage() {
       activeItem="Dashboard"
       isAdmin={isAdmin}
     >
-      <div className="space-y-6 lg:space-y-7">
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.42fr)]">
+      <div className="space-y-7 lg:space-y-8">
+        <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.22fr)_minmax(21rem,0.48fr)]">
           <HeroCaseAnalysis ctaHref="/cases/new" />
 
           <aside className="space-y-4">
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
           </aside>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
           <InvestigationTimeline currentStep={1} />
           <CaseBenefitsGrid />
         </div>
@@ -155,7 +155,7 @@ export default async function DashboardPage() {
               </span>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-2">
+            <div className="grid gap-5 2xl:grid-cols-2">
               {cases?.map((caseItem) => (
                 <CaseCard
                   key={caseItem.id}

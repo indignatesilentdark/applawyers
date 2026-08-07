@@ -32,9 +32,9 @@ const nodes = [
 
 export function HeroCaseAnalysis({ ctaHref }: HeroCaseAnalysisProps) {
   return (
-    <section className="glass-panel desktop-hero-panel relative overflow-hidden rounded-[2rem] p-6 sm:p-7 xl:p-8">
+    <section className="glass-panel desktop-hero-panel relative overflow-hidden rounded-[2rem] p-6 sm:p-7 xl:p-8 2xl:p-9">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(24,196,135,0.14),transparent_26%),radial-gradient(circle_at_82%_22%,rgba(75,145,255,0.14),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_55%)]" />
-      <div className="relative grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(24rem,0.95fr)] xl:items-center">
+      <div className="relative grid gap-8 2xl:grid-cols-[minmax(0,1.04fr)_minmax(23rem,0.96fr)] 2xl:items-center">
         <div>
           <motion.div
             className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent"
@@ -46,7 +46,7 @@ export function HeroCaseAnalysis({ ctaHref }: HeroCaseAnalysisProps) {
           </motion.div>
 
           <motion.h1
-            className="mt-5 max-w-4xl text-[2.8rem] font-semibold leading-[0.95] tracking-[-0.07em] text-white sm:text-[3.3rem] xl:text-[4.8rem]"
+            className="mt-5 max-w-4xl text-[2.8rem] font-semibold leading-[0.95] tracking-[-0.07em] text-white sm:text-[3.3rem] xl:text-[4.1rem] 2xl:text-[4.8rem]"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
@@ -108,7 +108,7 @@ export function HeroCaseAnalysis({ ctaHref }: HeroCaseAnalysisProps) {
         </div>
 
         <motion.div
-          className="relative min-h-[24rem]"
+          className="relative min-h-[21rem] 2xl:min-h-[24rem]"
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.45, delay: 0.12 }}
