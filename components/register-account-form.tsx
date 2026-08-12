@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { COUNTRY_OPTIONS, type CountryOption, findCountryOption } from "@/lib/countries";
+import { markRegistrationCompletePending } from "@/lib/gtag";
 
 type RegisterAccountFormProps = {
   initialCountry?: string;
@@ -89,7 +90,8 @@ export function RegisterAccountForm({ initialCountry }: RegisterAccountFormProps
         throw new Error(payload.error ?? "No pudimos crear tu cuenta.");
       }
 
-      router.push(payload.nextPath ?? "/dashboard");
+      markRegistrationCompletePending();
+      router.push(payload.nextPath ?? "/cases/new");
       router.refresh();
     } catch (submitError) {
       setError(

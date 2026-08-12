@@ -79,7 +79,7 @@ export function OnboardingForm({
         throw new Error(payload.error ?? "No pudimos guardar el perfil.");
       }
 
-      router.push("/dashboard");
+      router.push("/cases/new");
       router.refresh();
     } catch (saveError) {
       setError(

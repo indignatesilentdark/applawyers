@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { CaseWorkspaceShell } from "@/components/case-workspace-shell";
 import { CaseWizard } from "@/components/case-wizard";
+import { OnboardingRegistrationTracker } from "@/components/onboarding-registration-tracker";
 import { requirePortalUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ export default async function NewCasePage() {
 
   return (
     <CaseWorkspaceShell profile={profile}>
+      <OnboardingRegistrationTracker />
       <CaseWizard />
     </CaseWorkspaceShell>
   );

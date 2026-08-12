@@ -3,9 +3,14 @@
 import { motion } from "framer-motion";
 import { Banknote, CalendarDays, CircleDollarSign, Globe, Landmark, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FileUploader } from "@/components/file-uploader";
 import { LoadingState } from "@/components/loading-state";
+import {
+  trackCaseStarted,
+  trackCaseStepCompleted,
+  trackCaseSubmitted,
+} from "@/lib/gtag";
 
 const fraudOptions = [
   "Broker falso",
@@ -146,12 +151,23 @@ export function CaseWizard() {
   const [isCheckingBroker, setIsCheckingBroker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingLabel, setLoadingLabel] = useState("Preparando el caso...");
+  const hasTrackedStartRef = useRef(false);
 
   useEffect(() => {
     window.localStorage.setItem(
       "approvedlawyer:case-draft",
       JSON.stringify(draft),
     );
+  }, [draft]);
+
+  useEffect(() => {
+    if (hasTrackedStartRef.current) {
+      return;
+    }
+
+    const hasExistingDraft = Object.values(draft).some((value) => `${value}`.trim().length > 0);
+    trackCaseStarted(hasExistingDraft ? "resume_draft" : "fresh_start");
+    hasTrackedStartRef.current = true;
   }, [draft]);
 
   useEffect(() => {
@@ -218,31 +234,15 @@ export function CaseWizard() {
 
   function validateCurrentStep() {
     if (step === 0) {
-      return (
-        draft.companyName &&
-        draft.country &&
-        draft.lostAmount &&
-        draft.startDate &&
-        draft.paymentMethod
-      );
+      return draft.companyName && draft.country && draft.lostAmount;
     }
 
     if (step === 1) {
-      return (
-        draft.contactMethod &&
-        draft.promise &&
-        draft.stepsFollowed &&
-        draft.suspicionMoment &&
-        draft.fullDescription
-      );
+      return draft.contactMethod && draft.fullDescription;
     }
 
     if (step === 2) {
-      return (
-        draft.reportedToAuthorities &&
-        draft.contactedLawyers &&
-        draft.recoveryOfferReceived
-      );
+      return true;
     }
 
     return true;
@@ -284,6 +284,7 @@ export function CaseWizard() {
         throw new Error(payload.error ?? "No pudimos crear el caso.");
       }
 
+      trackCaseSubmitted(files.length);
       window.localStorage.removeItem("approvedlawyer:case-draft");
       router.push(`/cases/${payload.caseId}/report`);
       router.refresh();
@@ -858,7 +859,10 @@ export function CaseWizard() {
                 <button
                   type="button"
                   disabled={!validateCurrentStep()}
-                  onClick={() => setStep((current) => current + 1)}
+                  onClick={() => {
+                    trackCaseStepCompleted(step, steps[step]);
+                    setStep((current) => current + 1);
+                  }}
                   className="rounded-2xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-50"
                 >
                   Continuar

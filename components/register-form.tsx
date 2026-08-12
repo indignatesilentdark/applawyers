@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { markRegistrationCompletePending } from "@/lib/gtag";
 import { COUNTRY_OPTIONS, findCountryOption } from "@/lib/countries";
 import type { LeadTransferPayload } from "@/lib/leads";
 
@@ -175,7 +176,8 @@ export function RegisterForm({ lead }: RegisterFormProps) {
         throw new Error(payload.error ?? "No pudimos completar tu registro.");
       }
 
-      router.push("/dashboard");
+      markRegistrationCompletePending();
+      router.push("/cases/new");
       router.refresh();
     } catch (verifyError) {
       setError(getOtpErrorMessage(verifyError));

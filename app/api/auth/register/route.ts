@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import {
+  getPostAuthNextPath,
   getSessionExpiryDate,
   PORTAL_SESSION_COOKIE,
 } from "@/lib/portal-auth";
@@ -140,7 +141,11 @@ export async function POST(request: Request) {
       throw sessionError;
     }
 
-    const response = NextResponse.json({ ok: true, nextPath: "/dashboard" });
+    const nextPath = await getPostAuthNextPath(admin, createdUser.id, {
+      hasProfile: true,
+    });
+
+    const response = NextResponse.json({ ok: true, nextPath });
     response.cookies.set(PORTAL_SESSION_COOKIE, sessionToken, {
       expires: expiryDate,
       httpOnly: true,

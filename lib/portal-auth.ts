@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PortalUserRow, PrivateSessionRow } from "@/lib/types";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -10,6 +11,32 @@ const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 30;
 
 export function getSessionExpiryDate() {
   return new Date(Date.now() + SESSION_DURATION_MS);
+}
+
+export async function getPostAuthNextPath(
+  admin: SupabaseClient,
+  userId: string,
+  options?: { hasProfile?: boolean | null },
+) {
+  const hasProfile =
+    typeof options?.hasProfile === "boolean"
+      ? options.hasProfile
+      : Boolean(
+          (
+            await admin.from("profiles").select("id").eq("id", userId).maybeSingle()
+          ).data,
+        );
+
+  if (!hasProfile) {
+    return "/onboarding";
+  }
+
+  const { count } = await admin
+    .from("cases")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  return count && count > 0 ? "/dashboard" : "/cases/new";
 }
 
 export async function getPortalSession() {

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AuthEntryScreen } from "@/components/auth-entry-screen";
 import { hasPortalAuthEnv } from "@/lib/env";
-import { getPortalSession } from "@/lib/portal-auth";
+import { getPortalSession, getPostAuthNextPath } from "@/lib/portal-auth";
 
 type HomePageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -18,7 +18,7 @@ export default async function Home({ searchParams }: HomePageProps) {
       : undefined;
 
   if (session) {
-    redirect("/dashboard");
+    redirect(await getPostAuthNextPath(session.admin, session.user.id));
   }
 
   return (

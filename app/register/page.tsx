@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { RegisterAccountForm } from "@/components/register-account-form";
 import { findCountryNameByIsoCode } from "@/lib/countries";
-import { getPortalSession } from "@/lib/portal-auth";
+import { getPortalSession, getPostAuthNextPath } from "@/lib/portal-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +10,7 @@ export default async function RegisterPage() {
   const session = await getPortalSession();
 
   if (session) {
-    redirect("/dashboard");
+    redirect(await getPostAuthNextPath(session.admin, session.user.id));
   }
 
   const headersList = await headers();

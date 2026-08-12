@@ -1,8 +1,10 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { OnboardingForm } from "@/components/onboarding-form";
+import { OnboardingRegistrationTracker } from "@/components/onboarding-registration-tracker";
 import { requirePortalUser } from "@/lib/auth";
 import { findCountryNameByIsoCode } from "@/lib/countries";
+import { getPostAuthNextPath } from "@/lib/portal-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +21,12 @@ export default async function OnboardingPage() {
     .maybeSingle();
 
   if (profile) {
-    redirect("/dashboard");
+    redirect(await getPostAuthNextPath(admin, user.id, { hasProfile: true }));
   }
 
   return (
     <main className="page-shell page-shell-centered flex items-center py-8 lg:py-12">
+      <OnboardingRegistrationTracker />
       <div className="mx-auto w-full max-w-3xl">
         <OnboardingForm email={user.email} initialCountry={initialCountry} />
       </div>

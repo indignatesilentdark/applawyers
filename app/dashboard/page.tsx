@@ -4,6 +4,7 @@ import { CaseBenefitsGrid } from "@/components/case-benefits-grid";
 import { CaseCard } from "@/components/case-card";
 import { CaseStatusCard } from "@/components/case-status-card";
 import { CaseWorkspaceShell } from "@/components/case-workspace-shell";
+import { DashboardViewTracker } from "@/components/dashboard-view-tracker";
 import { HeroCaseAnalysis } from "@/components/hero-case-analysis";
 import { InvestigationTimeline } from "@/components/investigation-timeline";
 import { isAdminEmail } from "@/lib/admin";
@@ -48,7 +49,41 @@ export default async function DashboardPage() {
       activeItem="Dashboard"
       isAdmin={isAdmin}
     >
+      <DashboardViewTracker hasCases={hasCases} />
+
       <div className="space-y-7 lg:space-y-8">
+        {!hasCases ? (
+          <section className="glass-panel rounded-[1.75rem] border border-accent/20 bg-[radial-gradient(circle_at_top_left,rgba(36,222,170,0.12),transparent_38%),linear-gradient(180deg,rgba(12,24,44,0.96),rgba(8,15,31,0.92))] p-5 lg:p-6">
+            <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+              <div>
+                <p className="text-[0.72rem] uppercase tracking-[0.24em] text-accent/80">
+                  Siguiente paso recomendado
+                </p>
+                <h2 className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-white">
+                  Tu expediente todavía no ha comenzado
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-sky-100/76">
+                  Ya tienes acceso privado. Lo que falta ahora es completar el
+                  análisis de tu caso para que podamos generar tu dossier
+                  preliminar, detectar señales de riesgo y preparar la revisión.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 xl:min-w-[19rem]">
+                <a
+                  href="/cases/new"
+                  className="inline-flex items-center justify-center rounded-2xl bg-accent px-6 py-4 text-sm font-semibold text-accent-foreground transition hover:brightness-105"
+                >
+                  Continuar análisis de mi caso
+                </a>
+                <div className="rounded-[1.2rem] border border-border/70 bg-background/25 px-4 py-3 text-sm text-sky-100/74">
+                  Tiempo estimado: 10 a 15 minutos
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         <div className="grid gap-6 2xl:grid-cols-[minmax(0,1.22fr)_minmax(21rem,0.48fr)]">
           <HeroCaseAnalysis ctaHref="/cases/new" />
 
