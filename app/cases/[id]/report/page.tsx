@@ -14,6 +14,11 @@ type ReportPageProps = {
 export default async function ReportPage({ params }: ReportPageProps) {
   const { id } = await params;
   const { admin, user } = await requirePortalUser();
+  const isAdmin = isAdminEmail(user.email);
+
+  if (isAdmin) {
+    redirect(`/admin/cases/${id}`);
+  }
 
   const [{ data: profile }, { data: caseRow }, { data: reportRow }, { data: evidenceRows }] =
     await Promise.all([
@@ -45,7 +50,7 @@ export default async function ReportPage({ params }: ReportPageProps) {
   return (
     <main className="page-shell space-y-6 py-5 lg:space-y-7 lg:py-8">
       <DossierPrivateHeader
-        isAdmin={isAdminEmail(user.email)}
+        isAdmin={isAdmin}
         userEmail={profile.email}
         userName={fullName}
       />

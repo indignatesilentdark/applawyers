@@ -40,15 +40,18 @@ export function DossierPrivateHeader({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const navigationItems = useMemo<NavItem[]>(
-    () => [
-      { href: "/dashboard", icon: Home, label: "Inicio" },
-      { href: "/cases/new", icon: Sparkles, label: "Iniciar análisis" },
-      { href: "/profile", icon: UserRound, label: "Perfil" },
-      { href: "/security", icon: LockKeyhole, label: "Seguridad" },
-      ...(isAdmin
-        ? [{ href: "/admin", icon: ShieldUser, label: "Admin" }]
-        : []),
-    ],
+    () =>
+      isAdmin
+        ? [
+            { href: "/admin", icon: ShieldUser, label: "Admin" },
+            { href: "/admin/cases", icon: Home, label: "Casos" },
+          ]
+        : [
+            { href: "/dashboard", icon: Home, label: "Inicio" },
+            { href: "/cases/new", icon: Sparkles, label: "Iniciar análisis" },
+            { href: "/profile", icon: UserRound, label: "Perfil" },
+            { href: "/security", icon: LockKeyhole, label: "Seguridad" },
+          ],
     [isAdmin],
   );
 

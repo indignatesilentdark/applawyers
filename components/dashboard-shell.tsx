@@ -85,38 +85,49 @@ export function DashboardShell({
               </h1>
 
               <nav className="mt-5 hidden flex-wrap gap-2 xl:flex">
-                <Link
-                  href="/dashboard"
-                  className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/cases/new"
-                  className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
-                >
-                  Nuevo caso
-                </Link>
-                <Link
-                  href="/profile"
-                  className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
-                >
-                  Perfil
-                </Link>
-                <Link
-                  href="/security"
-                  className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
-                >
-                  Seguridad
-                </Link>
                 {isAdmin ? (
-                  <Link
-                    href="/admin"
-                    className="surface-accent rounded-full px-4 py-2 text-xs font-medium text-white"
-                  >
-                    Admin
-                  </Link>
-                ) : null}
+                  <>
+                    <Link
+                      href="/admin"
+                      className="surface-accent rounded-full px-4 py-2 text-xs font-medium text-white"
+                    >
+                      Admin
+                    </Link>
+                    <Link
+                      href="/admin/cases"
+                      className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
+                    >
+                      Casos
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/cases/new"
+                      className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
+                    >
+                      Nuevo caso
+                    </Link>
+                    <Link
+                      href="/profile"
+                      className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
+                    >
+                      Perfil
+                    </Link>
+                    <Link
+                      href="/security"
+                      className="rounded-full border border-border/70 bg-background-elevated/30 px-4 py-2 text-xs font-medium text-white"
+                    >
+                      Seguridad
+                    </Link>
+                  </>
+                )}
               </nav>
             </div>
             <div className="min-w-0 space-y-4 xl:pl-3">

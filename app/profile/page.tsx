@@ -7,6 +7,11 @@ export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
   const { admin, user } = await requirePortalUser();
+  const isAdmin = isAdminEmail(user.email);
+
+  if (isAdmin) {
+    redirect("/admin");
+  }
 
   const { data: profile } = await admin
     .from("profiles")
@@ -24,7 +29,7 @@ export default async function ProfilePage() {
     <DashboardShell
       title="Perfil"
       eyebrow="Datos del titular"
-      isAdmin={isAdminEmail(user.email)}
+      isAdmin={isAdmin}
       profile={profile}
     >
       <section className="glass-panel rounded-[1.75rem] p-5">

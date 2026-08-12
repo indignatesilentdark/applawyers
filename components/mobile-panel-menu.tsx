@@ -26,13 +26,17 @@ export function MobilePanelMenu({
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const items: NavItem[] = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/cases/new", label: "Nuevo caso" },
-    { href: "/profile", label: "Perfil" },
-    { href: "/security", label: "Seguridad" },
-    ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
-  ];
+  const items: NavItem[] = isAdmin
+    ? [
+        { href: "/admin", label: "Admin" },
+        { href: "/admin/cases", label: "Casos" },
+      ]
+    : [
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/cases/new", label: "Nuevo caso" },
+        { href: "/profile", label: "Perfil" },
+        { href: "/security", label: "Seguridad" },
+      ];
 
   return (
     <>
