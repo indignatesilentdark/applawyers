@@ -63,6 +63,7 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     const nextPath = await getPostAuthNextPath(admin, user.id, {
+      email: user.email,
       hasProfile: Boolean(profile),
     });
 

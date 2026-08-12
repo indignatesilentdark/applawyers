@@ -14,6 +14,11 @@ export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const { admin, user } = await requirePortalUser();
+  const isAdmin = isAdminEmail(user.email);
+
+  if (isAdmin) {
+    redirect("/admin");
+  }
 
   const [{ data: profile }, { data: cases }] = await Promise.all([
     admin
@@ -39,7 +44,6 @@ export default async function DashboardPage() {
 
   const reportCaseIds = new Set((reports ?? []).map((item) => item.case_id));
   const hasCases = Boolean(cases?.length);
-  const isAdmin = isAdminEmail(user.email);
 
   return (
     <CaseWorkspaceShell

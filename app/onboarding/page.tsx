@@ -21,7 +21,12 @@ export default async function OnboardingPage() {
     .maybeSingle();
 
   if (profile) {
-    redirect(await getPostAuthNextPath(admin, user.id, { hasProfile: true }));
+    redirect(
+      await getPostAuthNextPath(admin, user.id, {
+        email: user.email,
+        hasProfile: true,
+      }),
+    );
   }
 
   return (

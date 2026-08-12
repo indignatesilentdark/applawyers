@@ -18,7 +18,11 @@ export default async function Home({ searchParams }: HomePageProps) {
       : undefined;
 
   if (session) {
-    redirect(await getPostAuthNextPath(session.admin, session.user.id));
+    redirect(
+      await getPostAuthNextPath(session.admin, session.user.id, {
+        email: session.user.email,
+      }),
+    );
   }
 
   return (

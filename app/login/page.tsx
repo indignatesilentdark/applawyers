@@ -18,7 +18,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       : undefined;
 
   if (session) {
-    redirect(await getPostAuthNextPath(session.admin, session.user.id));
+    redirect(
+      await getPostAuthNextPath(session.admin, session.user.id, {
+        email: session.user.email,
+      }),
+    );
   }
 
   return (

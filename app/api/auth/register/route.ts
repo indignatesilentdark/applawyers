@@ -142,6 +142,7 @@ export async function POST(request: Request) {
     }
 
     const nextPath = await getPostAuthNextPath(admin, createdUser.id, {
+      email,
       hasProfile: true,
     });
 

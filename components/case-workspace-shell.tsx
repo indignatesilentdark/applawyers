@@ -33,12 +33,24 @@ type CaseWorkspaceShellProps = {
   isAdmin?: boolean;
 };
 
-const navigationItems = [
+type WorkspaceNavItem = {
+  adminOnly?: boolean;
+  badge?: string;
+  href: string;
+  icon: typeof Home;
+  label: string;
+};
+
+const userNavigationItems: WorkspaceNavItem[] = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
   { href: "/cases/new", icon: PlusCircle, label: "Nuevo caso" },
-  { href: "/dashboard", adminHref: "/admin/cases", icon: FolderOpen, label: "Casos" },
+  { href: "/dashboard", icon: FolderOpen, label: "Casos" },
   { href: "/security", icon: Settings, label: "Configuración" },
+];
+
+const adminNavigationItems: WorkspaceNavItem[] = [
   { href: "/admin", icon: Users, label: "Admin", adminOnly: true },
+  { href: "/admin/cases", icon: FolderOpen, label: "Casos", adminOnly: true },
   { href: "/admin", icon: ClipboardList, label: "Actividad", adminOnly: true },
   { href: "/admin", icon: MessageCircleMore, label: "Mensajes", badge: "3", adminOnly: true },
   { href: "/admin", icon: Files, label: "Entidades", adminOnly: true },
@@ -60,6 +72,7 @@ export function CaseWorkspaceShell({
   const avatarLabel = userName.slice(0, 1).toUpperCase();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const navigationItems = isAdmin ? adminNavigationItems : userNavigationItems;
   const visibleNavigationItems = navigationItems.filter(
     (item) => !item.adminOnly || isAdmin,
   );
@@ -122,8 +135,7 @@ export function CaseWorkspaceShell({
           >
             {visibleNavigationItems.map((item) => {
               const Icon = item.icon;
-              const href =
-                isAdmin && "adminHref" in item && item.adminHref ? item.adminHref : item.href;
+              const href = item.href;
 
               return (
                 <Link
@@ -321,8 +333,7 @@ export function CaseWorkspaceShell({
         <nav className="flex-1 space-y-1 px-4 py-6">
           {visibleNavigationItems.map((item) => {
             const Icon = item.icon;
-            const href =
-              isAdmin && "adminHref" in item && item.adminHref ? item.adminHref : item.href;
+            const href = item.href;
 
             return (
               <Link

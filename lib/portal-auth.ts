@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { env } from "@/lib/env";
 import type { PortalUserRow, PrivateSessionRow } from "@/lib/types";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -16,8 +17,22 @@ export function getSessionExpiryDate() {
 export async function getPostAuthNextPath(
   admin: SupabaseClient,
   userId: string,
-  options?: { hasProfile?: boolean | null },
+  options?: { email?: string | null; hasProfile?: boolean | null },
 ) {
+  const normalizedEmail = options?.email?.trim().toLowerCase();
+  const isAdmin =
+    Boolean(normalizedEmail) &&
+    new Set(
+      (env.adminEmails ?? "")
+        .split(",")
+        .map((item) => item.trim().toLowerCase())
+        .filter(Boolean),
+    ).has(normalizedEmail!);
+
+  if (isAdmin) {
+    return "/admin";
+  }
+
   const hasProfile =
     typeof options?.hasProfile === "boolean"
       ? options.hasProfile

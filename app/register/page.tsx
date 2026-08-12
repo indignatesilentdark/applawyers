@@ -10,7 +10,11 @@ export default async function RegisterPage() {
   const session = await getPortalSession();
 
   if (session) {
-    redirect(await getPostAuthNextPath(session.admin, session.user.id));
+    redirect(
+      await getPostAuthNextPath(session.admin, session.user.id, {
+        email: session.user.email,
+      }),
+    );
   }
 
   const headersList = await headers();
