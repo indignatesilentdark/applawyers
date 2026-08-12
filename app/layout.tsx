@@ -56,7 +56,9 @@ fbq('track', 'PageView');`}
       </head>
       <body className="min-h-full flex flex-col">
         <noscript>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            alt=""
             height="1"
             width="1"
             style={{ display: "none" }}
