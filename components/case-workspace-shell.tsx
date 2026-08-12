@@ -36,7 +36,7 @@ type CaseWorkspaceShellProps = {
 const navigationItems = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
   { href: "/cases/new", icon: PlusCircle, label: "Nuevo caso" },
-  { href: "/dashboard", icon: FolderOpen, label: "Casos" },
+  { href: "/dashboard", adminHref: "/admin/cases", icon: FolderOpen, label: "Casos" },
   { href: "/security", icon: Settings, label: "Configuración" },
   { href: "/admin", icon: Users, label: "Admin", adminOnly: true },
   { href: "/admin", icon: ClipboardList, label: "Actividad", adminOnly: true },
@@ -122,11 +122,13 @@ export function CaseWorkspaceShell({
           >
             {visibleNavigationItems.map((item) => {
               const Icon = item.icon;
+              const href =
+                isAdmin && "adminHref" in item && item.adminHref ? item.adminHref : item.href;
 
               return (
                 <Link
-                  key={`${item.href}-${item.label}`}
-                  href={item.href}
+                  key={`${href}-${item.label}`}
+                  href={href}
                   title={sidebarCollapsed ? item.label : undefined}
                   className={cn(
                     "flex rounded-2xl py-3 text-sm text-sky-100/74 transition",
@@ -319,11 +321,13 @@ export function CaseWorkspaceShell({
         <nav className="flex-1 space-y-1 px-4 py-6">
           {visibleNavigationItems.map((item) => {
             const Icon = item.icon;
+            const href =
+              isAdmin && "adminHref" in item && item.adminHref ? item.adminHref : item.href;
 
             return (
               <Link
-                key={`mobile-${item.href}-${item.label}`}
-                href={item.href}
+                key={`mobile-${href}-${item.label}`}
+                href={href}
                 className={cn(
                   "flex items-center justify-between rounded-2xl px-4 py-3 text-sm text-sky-100/74",
                   item.label === activeItem

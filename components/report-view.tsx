@@ -20,6 +20,7 @@ type ReportViewProps = {
   evidenceRows: CaseEvidenceRow[];
   profile: Pick<ProfileRow, "email" | "first_name" | "last_name"> | null;
   report?: StructuredReport;
+  showActions?: boolean;
 };
 
 function IconSpark() {
@@ -168,6 +169,7 @@ export function ReportView({
   evidenceRows,
   profile,
   report,
+  showActions = true,
 }: ReportViewProps) {
   const router = useRouter();
   const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ");
@@ -778,50 +780,52 @@ export function ReportView({
         </motion.div>
       )}
 
-      <motion.section
-        className="glass-panel rounded-[1.75rem] border border-border/80 p-5"
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32 }}
-        viewport={{ once: true, amount: 0.3 }}
-      >
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
-              Acciones del dossier
-            </p>
-            <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
-              Exporta el informe o escala el caso
-            </h3>
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
-              Puedes descargar el dossier en PDF o solicitar revisión humana
-              para que el caso entre a una validación más profunda.
-            </p>
+      {showActions ? (
+        <motion.section
+          className="glass-panel rounded-[1.75rem] border border-border/80 p-5"
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.32 }}
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-[0.72rem] uppercase tracking-[0.22em] text-muted-foreground">
+                Acciones del dossier
+              </p>
+              <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
+                Exporta el informe o escala el caso
+              </h3>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
+                Puedes descargar el dossier en PDF o solicitar revisión humana
+                para que el caso entre a una validación más profunda.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleReviewRequest}
+                disabled={!report || isRequestingReview}
+                className="rounded-2xl border border-border/80 bg-background-elevated/60 px-5 py-4 text-sm font-semibold text-white transition hover:border-accent/30 hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-55"
+              >
+                {isRequestingReview
+                  ? "Solicitando revisión..."
+                  : "Solicitar revisión humana"}
+              </button>
+              <a
+                href={`/api/cases/${caseRow.id}/pdf`}
+                className={`rounded-2xl px-5 py-4 text-center text-sm font-semibold transition ${
+                  report
+                    ? "bg-accent text-accent-foreground hover:brightness-105"
+                    : "pointer-events-none bg-accent/45 text-accent-foreground/70"
+                }`}
+              >
+                Descargar PDF
+              </a>
+            </div>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={handleReviewRequest}
-              disabled={!report || isRequestingReview}
-              className="rounded-2xl border border-border/80 bg-background-elevated/60 px-5 py-4 text-sm font-semibold text-white transition hover:border-accent/30 hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-55"
-            >
-              {isRequestingReview
-                ? "Solicitando revisión..."
-                : "Solicitar revisión humana"}
-            </button>
-            <a
-              href={`/api/cases/${caseRow.id}/pdf`}
-              className={`rounded-2xl px-5 py-4 text-center text-sm font-semibold transition ${
-                report
-                  ? "bg-accent text-accent-foreground hover:brightness-105"
-                  : "pointer-events-none bg-accent/45 text-accent-foreground/70"
-              }`}
-            >
-              Descargar PDF
-            </a>
-          </div>
-        </div>
-      </motion.section>
+        </motion.section>
+      ) : null}
     </div>
   );
 }

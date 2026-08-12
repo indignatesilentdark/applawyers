@@ -174,7 +174,7 @@ export function AdminRegistryPanel({
                     </div>
                     <div className="rounded-2xl border border-border/70 bg-background/25 px-4 py-3 text-sm text-white/90">
                       <Link
-                        href={`/cases/${item.id}/report`}
+                        href={`/admin/cases/${item.id}`}
                         className="font-medium text-accent"
                       >
                         Abrir dossier
