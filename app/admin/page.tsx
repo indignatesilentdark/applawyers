@@ -68,6 +68,7 @@ export default async function AdminPage() {
       title="Admin"
       eyebrow="Panel interno"
       activeItem="Admin"
+      isAdmin
     >
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
         <div className="relative overflow-hidden rounded-[1.9rem] border border-accent/15 bg-[radial-gradient(circle_at_top_left,rgba(36,222,170,0.16),transparent_38%),linear-gradient(180deg,rgba(12,24,44,0.96),rgba(8,15,31,0.92))] p-6 lg:p-7">
