@@ -14,8 +14,19 @@ type FlaggedBrokerAdminRow = {
   updated_at: string;
 };
 
-export default async function AdminPage() {
+type AdminPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   const { admin, user } = await requireAdminUser();
+  const params = (await searchParams) ?? {};
+  const requestedTab =
+    typeof params.tab === "string" ? params.tab.toLowerCase() : "overview";
+  const initialTab =
+    requestedTab === "entities" || requestedTab === "users"
+      ? requestedTab
+      : "overview";
 
   const [
     { data: adminProfile },
@@ -67,7 +78,7 @@ export default async function AdminPage() {
       profile={adminProfile}
       title="Admin"
       eyebrow="Panel interno"
-      activeItem="Admin"
+      activeItem={initialTab === "entities" ? "Entidades" : "Admin"}
       isAdmin
     >
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
@@ -200,6 +211,7 @@ export default async function AdminPage() {
             ownerLabel: ownerName || ownerUser?.email || item.user_id,
           };
         })}
+        initialTab={initialTab}
         totalCases={totalCases}
       />
 

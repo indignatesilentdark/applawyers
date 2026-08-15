@@ -40,6 +40,7 @@ type AdminCaseItem = {
 type AdminRegistryPanelProps = {
   entities: AdminEntityItem[];
   externalFeedCount: number;
+  initialTab?: (typeof tabs)[number]["id"];
   users: AdminUserItem[];
   cases: AdminCaseItem[];
   totalCases: number;
@@ -54,12 +55,13 @@ const tabs = [
 export function AdminRegistryPanel({
   entities,
   externalFeedCount,
+  initialTab = "overview",
   users,
   cases,
   totalCases,
 }: AdminRegistryPanelProps) {
   const [activeTab, setActiveTab] =
-    useState<(typeof tabs)[number]["id"]>("overview");
+    useState<(typeof tabs)[number]["id"]>(initialTab);
   const [query, setQuery] = useState("");
 
   const filteredUsers = useMemo(() => {

@@ -53,7 +53,7 @@ const adminNavigationItems: WorkspaceNavItem[] = [
   { href: "/admin/cases", icon: FolderOpen, label: "Casos", adminOnly: true },
   { href: "/admin", icon: ClipboardList, label: "Actividad", adminOnly: true },
   { href: "/admin", icon: MessageCircleMore, label: "Mensajes", badge: "3", adminOnly: true },
-  { href: "/admin", icon: Files, label: "Entidades", adminOnly: true },
+  { href: "/admin?tab=entities", icon: Files, label: "Entidades", adminOnly: true },
   { href: "/admin", icon: CalendarDays, label: "Agenda", adminOnly: true },
 ];
 
